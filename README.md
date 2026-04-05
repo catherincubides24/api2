@@ -53,101 +53,57 @@ Arquitectura backend por capas (estilo MVC para API REST):
 
 Esto facilita mantenimiento, pruebas y escalabilidad.
 
-## 3) Diagrama de arquitectura
+## 3) Diagrama de arquitectura (modo compatible)
 
-```mermaid
-flowchart LR
-    U[Cliente Web] --> F[Frontend React + Nginx :5173]
-    F -->|/api proxy| B[Backend Spring Boot :8081]
-    B --> D[(PostgreSQL :5433)]
-    B --> J[JWT Auth + Roles]
+```text
+Cliente Web
+   |
+   v
+Frontend React + Nginx (localhost:5173)
+   |
+   | /api (proxy)
+   v
+Backend Spring Boot (localhost:8081)
+   |
+   +--> JWT + Roles (ADMIN / CUSTOMER)
+   |
+   v
+PostgreSQL (localhost:5433)
 ```
 
-## 4) Diagrama de capas backend
+## 4) Diagrama de capas backend (modo compatible)
 
-```mermaid
-flowchart TD
-    C[Controllers] --> S[Services]
-    S --> R[Repositories]
-    R --> DB[(PostgreSQL)]
-    S --> DTO[DTO Mapper]
-    C --> DTO
+```text
+Controller -> Service -> Repository -> PostgreSQL
+      \           |
+       \          v
+        +------ DTOs
 ```
 
-## 5) Flujo funcional de compra
+## 5) Flujo funcional de compra (paso a paso)
 
-```mermaid
-sequenceDiagram
-    participant Cliente
-    participant Frontend
-    participant API
-    participant DB
+1. Cliente hace login/registro en frontend.
+2. Frontend llama a `POST /api/auth/login` o `POST /api/auth/register`.
+3. Backend responde token JWT y datos de usuario.
+4. Cliente consulta productos (`GET /api/products`).
+5. Cliente arma carrito y confirma compra.
+6. Frontend envía `POST /api/orders` con `userId` e `items`.
+7. Backend guarda pedido e items en PostgreSQL y devuelve el pedido creado.
+8. Cliente ve historial con `GET /api/orders/user/{userId}`.
+9. Admin actualiza estado con `PATCH /api/orders/{id}/status`.
 
-    Cliente->>Frontend: Login / Registro
-    Frontend->>API: POST /api/auth/login o /register
-    API->>Frontend: JWT + datos usuario
+### Modelo de datos (ER en texto)
 
-    Cliente->>Frontend: Agregar productos al carrito
-    Frontend->>API: GET /api/products
-    API->>DB: Consulta productos
-    DB->>API: Productos
-    API->>Frontend: Lista de productos
+- `USER (1) -> (N) PET_ORDER`
+- `PET_ORDER (1) -> (N) ORDER_ITEM`
+- `PRODUCT (1) -> (N) ORDER_ITEM`
 
-    Cliente->>Frontend: Confirmar pedido
-    Frontend->>API: POST /api/orders
-    API->>DB: Guarda pedido + items
-    API->>Frontend: Pedido creado
+Entidades:
 
-    Frontend->>API: GET /api/orders/user/{userId}
-    API->>Frontend: Historial de compras
-
-    Note over API: Admin puede cambiar estado
-    Frontend->>API: PATCH /api/orders/{id}/status
-```
-
-### Modelo de datos (ER)
-
-```mermaid
-erDiagram
-    USER ||--o{ PET_ORDER : places
-    PET_ORDER ||--|{ ORDER_ITEM : contains
-    PRODUCT ||--o{ ORDER_ITEM : appears_in
-
-    USER {
-      long id
-      string fullName
-      string email
-      string password
-      string role
-      datetime createdAt
-    }
-
-    PRODUCT {
-      long id
-      string name
-      string description
-      decimal price
-      int stock
-      string category
-      bool active
-    }
-
-    PET_ORDER {
-      long id
-      long userId
-      string status
-      decimal totalAmount
-      datetime createdAt
-    }
-
-    ORDER_ITEM {
-      long id
-      long orderId
-      long productId
-      int quantity
-      decimal unitPrice
-    }
-```
+- `USER`: id, fullName, email, password, role, createdAt
+- `PRODUCT`: id, name, description, price, stock, category, active
+- `PET_ORDER`: id, userId, status, totalAmount, createdAt
+- `ORDER_ITEM`: id, orderId, productId, quantity, unitPrice
 
 ## 6) Zona horaria y moneda
 
