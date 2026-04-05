@@ -1,0 +1,142 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+export default function RegisterPage() {
+  const { register } = useAuth();
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+
+    if (form.password !== form.confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await register({
+        fullName: form.fullName,
+        email: form.email,
+        password: form.password,
+        role: "CUSTOMER",
+      });
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.message || "No se pudo crear la cuenta");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mx-auto grid max-w-4xl gap-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-card md:grid-cols-2 md:p-10">
+      <form onSubmit={handleSubmit} className="order-2 space-y-4 md:order-1">
+        <div>
+          <label className="mb-1 block text-sm font-semibold">Nombre completo</label>
+          <input
+            type="text"
+            required
+            value={form.fullName}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, fullName: event.target.value }))
+            }
+            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            placeholder="Nombre Apellido"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">Email</label>
+          <input
+            type="email"
+            required
+            value={form.email}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, email: event.target.value }))
+            }
+            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            placeholder="tu@email.com"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">Contraseña</label>
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={form.password}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, password: event.target.value }))
+            }
+            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            placeholder="Mínimo 6 caracteres"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">Confirmar contraseña</label>
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={form.confirmPassword}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                confirmPassword: event.target.value,
+              }))
+            }
+            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            placeholder="Repite tu contraseña"
+          />
+        </div>
+
+        {error && (
+          <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm text-coral">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60"
+        >
+          {loading ? "Creando cuenta..." : "Crear cuenta"}
+        </button>
+
+        <p className="text-center text-sm text-ink/70">
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/login" className="font-semibold text-coral hover:underline">
+            Inicia sesión
+          </Link>
+        </p>
+      </form>
+
+      <div className="order-1 rounded-3xl bg-gradient-to-br from-coral via-peach to-mint p-7 text-ink md:order-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em]">Registro</p>
+        <h1 className="mt-4 font-display text-4xl leading-tight">
+          Crea tu cuenta en menos de un minuto.
+        </h1>
+        <p className="mt-4 text-sm text-ink/80">
+          Guarda tus pedidos, arma carrito y explora nuevos productos para tu
+          mascota.
+        </p>
+      </div>
+    </div>
+  );
+}

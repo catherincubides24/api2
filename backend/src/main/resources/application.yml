@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: petshop-backend
+  jackson:
+    time-zone: America/Bogota
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/petshop_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: America/Bogota
+
+jwt:
+  secret: ${JWT_SECRET:bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfcGV0c2hvcF9hcGlfZm9yX3VuaXZlcnNpdHlfcHJvamVjdF8xMjM0NTY=}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
