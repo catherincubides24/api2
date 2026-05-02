@@ -1,11 +1,12 @@
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import SectionTitle from "../components/SectionTitle";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { orderService } from "../services/orderService";
+import { paymentService } from "../services/paymentService";
 import { formatCurrency } from "../utils/formatCurrency";
-import { useState } from "react";
 
 export default function CartPage() {
   const { items, total, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -15,12 +16,12 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
-
     setIsSubmitting(true);
     setFeedback("");
 
     try {
-      await orderService.createOrder({
+      // 1. Crear pedido interno primero
+      const order = await orderService.createOrder({
         userId: user.id,
         status: "PENDING",
         items: items.map((item) => ({
@@ -29,14 +30,20 @@ export default function CartPage() {
         })),
       });
 
-      clearCart();
-      setFeedback("Pedido creado correctamente. Revisa Mis compras para verlo.");
+      // 2. Guardar el orderId interno en sessionStorage para recuperarlo en la página de éxito
+      sessionStorage.setItem("pendingPayPalOrderId", String(order.id));
+
+      // 3. Crear orden en PayPal con el ID del pedido interno
+      const paypal = await paymentService.createPayPalOrder(order.id);
+
+      // 4. Redirigir al usuario a PayPal para aprobar el pago
+      window.location.href = paypal.approvalUrl;
+
     } catch (err) {
       setFeedback(
         err.response?.data?.message ||
-          "No se pudo completar el pedido. Inténtalo de nuevo."
+          "No se pudo iniciar el pago. Inténtalo de nuevo."
       );
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -127,10 +134,21 @@ export default function CartPage() {
 
         <button
           onClick={handleCheckout}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !user}
           className="w-full rounded-xl bg-coral px-4 py-3 text-sm font-semibold text-white transition hover:bg-coral/90 disabled:opacity-60"
         >
-          {isSubmitting ? "Procesando pedido..." : "Confirmar pedido"}
+          {isSubmitting ? (
+            "Redirigiendo a PayPal..."
+          ) : (
+            <span className="flex items-center justify-center gap-2">
+              <img
+                src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg"
+                alt="PayPal"
+                className="h-5 rounded"
+              />
+              Pagar con PayPal
+            </span>
+          )}
         </button>
 
         {feedback && (

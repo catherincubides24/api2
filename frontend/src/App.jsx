@@ -9,6 +9,8 @@ import CartPage from "./pages/CartPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import PaymentCancelPage from "./pages/PaymentCancelPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PurchasesPage from "./pages/PurchasesPage";
 import RegisterPage from "./pages/RegisterPage";
 
@@ -52,6 +54,11 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+
+          {/* Rutas de pago PayPal — públicas porque PayPal redirige aquí sin token */}
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

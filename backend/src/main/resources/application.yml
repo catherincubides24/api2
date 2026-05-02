@@ -23,3 +23,17 @@ spring:
 jwt:
   secret: ${JWT_SECRET:bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfcGV0c2hvcF9hcGlfZm9yX3VuaXZlcnNpdHlfcHJvamVjdF8xMjM0NTY=}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+
+paypal:
+  client-id: ${PAYPAL_CLIENT_ID:TU_CLIENT_ID_AQUI}
+  client-secret: ${PAYPAL_CLIENT_SECRET:TU_SECRET_AQUI}
+  mode: ${PAYPAL_MODE:sandbox}
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  api-docs:
+    enabled: true
+    path: /api-docs
