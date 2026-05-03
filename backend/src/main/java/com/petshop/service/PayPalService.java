@@ -1,8 +1,5 @@
 package com.petshop.service;
 
-import com.paypal.http.HttpResponse;
-import com.paypal.orders.*;
-import com.paypal.core.PayPalHttpClient;
 import com.petshop.dto.payment.PaymentCaptureResponse;
 import com.petshop.dto.payment.PaymentOrderResponse;
 import com.petshop.entity.OrderStatus;
@@ -12,12 +9,18 @@ import com.petshop.exception.ResourceNotFoundException;
 import com.petshop.repository.PetOrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
-import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
@@ -25,15 +28,21 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PayPalService {
 
-    private final PayPalHttpClient payPalHttpClient;
+    private final RestClient payPalRestClient;
     private final PetOrderRepository petOrderRepository;
 
-    /**
-     * Crea una orden en PayPal y devuelve el URL de aprobación.
-     * El frontend redirige al usuario a ese URL para que pague.
-     */
+    @Value("${paypal.client-id}")
+    private String clientId;
+
+    @Value("${paypal.client-secret}")
+    private String clientSecret;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // PASO 1: Crear orden en PayPal
+    // ─────────────────────────────────────────────────────────────────────────
+
     public PaymentOrderResponse createPayPalOrder(Long orderId, String returnUrl, String cancelUrl) {
-        // Buscar el pedido interno
+
         PetOrder petOrder = petOrderRepository.findById(Objects.requireNonNull(orderId))
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado con id " + orderId));
 
@@ -41,78 +50,98 @@ public class PayPalService {
             throw new BadRequestException("Este pedido ya fue pagado o está en camino.");
         }
 
-        // Construir la orden de PayPal
-        OrderRequest orderRequest = new OrderRequest();
-        orderRequest.checkoutPaymentIntent("CAPTURE");
+        String accessToken = getAccessToken();
 
-        // Convertimos el total a String con dos decimales (asumiendo USD)
-        String amountValue = petOrder.getTotalAmount()
+        // Monto con dos decimales
+        String amount = petOrder.getTotalAmount()
                 .setScale(2, java.math.RoundingMode.HALF_UP)
                 .toPlainString();
 
-        // Crear AmountWithBreakdown correctamente
-        AmountWithBreakdown amount = new AmountWithBreakdown()
-                .currencyCode("USD")
-                .value(amountValue);
-
-        // Construir PurchaseUnitRequest con el amount
-        PurchaseUnitRequest purchaseUnit = new PurchaseUnitRequest()
-                .referenceId(String.valueOf(orderId))
-                .description("Pedido Huellitas Shop #" + orderId)
-                .amount(amount);   // <--- CORRECCIÓN CLAVE
-
-        orderRequest.purchaseUnits(List.of(purchaseUnit));
-
-        // URLs de retorno
-        ApplicationContext applicationContext = new ApplicationContext()
-                .returnUrl(returnUrl)
-                .cancelUrl(cancelUrl)
-                .brandName("Huellitas Shop")
-                .landingPage("BILLING")
-                .userAction("PAY_NOW");
-
-        orderRequest.applicationContext(applicationContext);
-
-        OrdersCreateRequest request = new OrdersCreateRequest().requestBody(orderRequest);
+        // Cuerpo de la orden PayPal (estructura REST v2)
+        Map<String, Object> orderBody = Map.of(
+                "intent", "CAPTURE",
+                "purchase_units", List.of(
+                        Map.of(
+                                "reference_id", String.valueOf(orderId),
+                                "description", "Pedido Huellitas Shop #" + orderId,
+                                "amount", Map.of(
+                                        "currency_code", "USD",
+                                        "value", amount
+                                )
+                        )
+                ),
+                "application_context", Map.of(
+                        "brand_name", "Huellitas Shop",
+                        "landing_page", "BILLING",
+                        "user_action", "PAY_NOW",
+                        "return_url", returnUrl,
+                        "cancel_url", cancelUrl
+                )
+        );
 
         try {
-            HttpResponse<Order> response = payPalHttpClient.execute(request);
-            Order order = response.result();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = payPalRestClient.post()
+                    .uri("/v2/checkout/orders")
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(orderBody)
+                    .retrieve()
+                    .body(Map.class);
 
-            // Extraer el URL de aprobación de los links de la respuesta
-            String approvalUrl = order.links().stream()
-                    .filter(link -> "approve".equals(link.rel()))
+            if (response == null) {
+                throw new BadRequestException("PayPal no devolvió respuesta al crear la orden.");
+            }
+
+            String paypalOrderId = (String) response.get("id");
+            String status = (String) response.get("status");
+
+            // Extraer el approvalUrl de los links
+            @SuppressWarnings("unchecked")
+            List<Map<String, String>> links = (List<Map<String, String>>) response.get("links");
+
+            String approvalUrl = links.stream()
+                    .filter(link -> "approve".equals(link.get("rel")))
+                    .map(link -> link.get("href"))
                     .findFirst()
-                    .map(LinkDescription::href)
-                    .orElseThrow(() -> new BadRequestException("No se pudo obtener el URL de aprobación de PayPal"));
+                    .orElseThrow(() -> new BadRequestException("PayPal no devolvió URL de aprobación."));
 
-            log.info("Orden PayPal creada: {} para pedido interno: {}", order.id(), orderId);
-            return new PaymentOrderResponse(order.id(), approvalUrl, order.status());
+            log.info("Orden PayPal creada: {} para pedido interno: {}", paypalOrderId, orderId);
+            return new PaymentOrderResponse(paypalOrderId, approvalUrl, status);
 
-        } catch (IOException e) {
+        } catch (RestClientException e) {
             log.error("Error al crear orden PayPal para pedido {}: {}", orderId, e.getMessage());
             throw new BadRequestException("Error al conectar con PayPal: " + e.getMessage());
         }
     }
 
-    /**
-     * Captura el pago después de que el usuario aprueba en PayPal.
-     * Actualiza el estado del pedido interno a PAID.
-     */
+    // ─────────────────────────────────────────────────────────────────────────
+    // PASO 2: Capturar el pago luego de que el usuario aprueba en PayPal
+    // ─────────────────────────────────────────────────────────────────────────
+
     @Transactional
     public PaymentCaptureResponse capturePayPalOrder(String paypalOrderId, Long orderId) {
-        OrdersCaptureRequest request = new OrdersCaptureRequest(paypalOrderId);
-        request.requestBody(new OrderRequest());
+
+        String accessToken = getAccessToken();
 
         try {
-            HttpResponse<Order> response = payPalHttpClient.execute(request);
-            Order capturedOrder = response.result();
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = payPalRestClient.post()
+                    .uri("/v2/checkout/orders/{id}/capture", paypalOrderId)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of()) // body vacío requerido por PayPal
+                    .retrieve()
+                    .body(Map.class);
 
-            String status = capturedOrder.status();
+            if (response == null) {
+                throw new BadRequestException("PayPal no devolvió respuesta al capturar el pago.");
+            }
+
+            String status = (String) response.get("status");
             log.info("Captura PayPal - Orden: {}, Estado: {}", paypalOrderId, status);
 
             if ("COMPLETED".equals(status)) {
-                // Actualizar estado del pedido interno
                 PetOrder petOrder = petOrderRepository.findById(orderId)
                         .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado: " + orderId));
 
@@ -134,9 +163,42 @@ public class PayPalService {
                 );
             }
 
-        } catch (IOException e) {
+        } catch (RestClientException e) {
             log.error("Error al capturar pago PayPal {}: {}", paypalOrderId, e.getMessage());
             throw new BadRequestException("Error al capturar el pago de PayPal: " + e.getMessage());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Método privado: obtener access token de PayPal (OAuth2 Client Credentials)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private String getAccessToken() {
+        String credentials = Base64.getEncoder()
+                .encodeToString((clientId + ":" + clientSecret).getBytes());
+
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "client_credentials");
+
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> response = payPalRestClient.post()
+                    .uri("/v1/oauth2/token")
+                    .header("Authorization", "Basic " + credentials)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(formData)
+                    .retrieve()
+                    .body(Map.class);
+
+            if (response == null || !response.containsKey("access_token")) {
+                throw new BadRequestException("No se pudo obtener el token de acceso de PayPal.");
+            }
+
+            return (String) response.get("access_token");
+
+        } catch (RestClientException e) {
+            log.error("Error al obtener token PayPal: {}", e.getMessage());
+            throw new BadRequestException("Error de autenticación con PayPal: " + e.getMessage());
         }
     }
 }

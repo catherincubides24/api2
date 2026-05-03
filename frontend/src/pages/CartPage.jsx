@@ -16,13 +16,18 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
+    if (!user) {
+      setFeedback("Debes iniciar sesión para continuar.");
+      return;
+    }
+
     setIsSubmitting(true);
     setFeedback("");
 
     try {
-      // 1. Crear pedido interno primero
+      // PASO 1: Crear el pedido en tu base de datos
       const order = await orderService.createOrder({
-        userId: user.id,
+        userId: user.id, // ahora seguro porque verificamos user arriba
         status: "PENDING",
         items: items.map((item) => ({
           productId: item.id,
@@ -30,15 +35,14 @@ export default function CartPage() {
         })),
       });
 
-      // 2. Guardar el orderId interno en sessionStorage para recuperarlo en la página de éxito
+      // PASO 2: Guardar el orderId para recuperarlo después del pago
       sessionStorage.setItem("pendingPayPalOrderId", String(order.id));
 
-      // 3. Crear orden en PayPal con el ID del pedido interno
+      // PASO 3: Crear la orden en PayPal y obtener la URL de aprobación
       const paypal = await paymentService.createPayPalOrder(order.id);
 
-      // 4. Redirigir al usuario a PayPal para aprobar el pago
+      // PASO 4: Redirigir al usuario a PayPal
       window.location.href = paypal.approvalUrl;
-
     } catch (err) {
       setFeedback(
         err.response?.data?.message ||

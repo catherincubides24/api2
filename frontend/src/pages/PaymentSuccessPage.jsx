@@ -11,8 +11,13 @@ export default function PaymentSuccessPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const paypalOrderId = searchParams.get("token"); // PayPal devuelve el token aquí
-    const orderId = sessionStorage.getItem("pendingPayPalOrderId"); // lo guardamos antes de redirigir
+    // ── PASO E: Recibir el token que PayPal pone en la URL ──────────
+    // PayPal redirige a: /payment/success?token=PAYPAL_ORDER_ID&PayerID=...
+    // El "token" es el ID de la orden en PayPal
+    const paypalOrderId = searchParams.get("token");
+
+    // ── PASO F: Recuperar el orderId interno que guardamos antes ────
+    const orderId = sessionStorage.getItem("pendingPayPalOrderId");
 
     if (!paypalOrderId || !orderId) {
       setStatus("error");
@@ -22,14 +27,17 @@ export default function PaymentSuccessPage() {
 
     const capture = async () => {
       try {
+        // ── PASO G: Decirle al backend que capture el dinero ────────
+        // El backend llama a PayPal para cobrar el dinero
+        // Si todo va bien, cambia el pedido a estado PAID
         const result = await paymentService.capturePayPalOrder(
           paypalOrderId,
           Number(orderId)
         );
 
         if (result.status === "COMPLETED") {
-          clearCart();
-          sessionStorage.removeItem("pendingPayPalOrderId");
+          clearCart();                                        // vacía el carrito
+          sessionStorage.removeItem("pendingPayPalOrderId"); // limpia sessionStorage
           setStatus("success");
           setMessage(result.message);
         } else {
@@ -38,17 +46,17 @@ export default function PaymentSuccessPage() {
         }
       } catch (err) {
         setStatus("error");
-        setMessage(
-          err.response?.data?.message || "Error al confirmar el pago."
-        );
+        setMessage(err.response?.data?.message || "Error al confirmar el pago.");
       }
     };
 
     capture();
   }, []);
 
+  // ── UI según el estado ──────────────────────────────────────────────
   return (
     <div className="mx-auto max-w-2xl rounded-3xl bg-white/85 p-10 text-center shadow-card">
+
       {status === "loading" && (
         <>
           <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-mint border-t-transparent" />
@@ -88,6 +96,7 @@ export default function PaymentSuccessPage() {
           </Link>
         </>
       )}
+
     </div>
   );
 }
