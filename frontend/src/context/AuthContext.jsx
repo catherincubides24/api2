@@ -9,7 +9,6 @@ const USER_KEY = "petshop_user";
 function getStoredUser() {
   const raw = localStorage.getItem(USER_KEY);
   if (!raw) return null;
-
   try {
     return JSON.parse(raw);
   } catch {
@@ -29,10 +28,8 @@ export function AuthProvider({ children }) {
       email: session.email,
       role: session.role,
     };
-
     setToken(session.token);
     setUser(nextUser);
-
     localStorage.setItem(TOKEN_KEY, session.token);
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
   };
@@ -49,6 +46,10 @@ export function AuthProvider({ children }) {
     return session;
   };
 
+  // Al hacer logout SOLO se borra el token y el usuario.
+  // CartContext detecta que user?.id cambió a undefined
+  // y automáticamente vacía el carrito en memoria (sin borrar el
+  // carrito guardado en localStorage del usuario anterior).
   const logout = () => {
     setToken(null);
     setUser(null);

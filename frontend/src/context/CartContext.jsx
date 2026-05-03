@@ -1,26 +1,44 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useAuth } from "./AuthContext";
 
 const CartContext = createContext(null);
-const CART_KEY = "petshop_cart";
+const CART_KEY_PREFIX = "petshop_cart";
 
-function getStoredCart() {
-  const raw = localStorage.getItem(CART_KEY);
+function getCartKey(userId) {
+  return userId ? `${CART_KEY_PREFIX}_${userId}` : null;
+}
+
+function getStoredCart(key) {
+  if (!key) return [];
+  const raw = localStorage.getItem(key);
   if (!raw) return [];
-
   try {
     return JSON.parse(raw);
   } catch {
-    localStorage.removeItem(CART_KEY);
+    localStorage.removeItem(key);
     return [];
   }
 }
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState(getStoredCart);
+  const { user } = useAuth();
+
+  const cartKey = useMemo(
+    () => getCartKey(user?.id),
+    [user?.id]
+  );
+
+  const [items, setItems] = useState(() => getStoredCart(getCartKey(user?.id)));
 
   useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(items));
-  }, [items]);
+    setItems(getStoredCart(cartKey));
+  }, [cartKey]);
+
+  useEffect(() => {
+    if (cartKey) {
+      localStorage.setItem(cartKey, JSON.stringify(items));
+    }
+  }, [items, cartKey]);
 
   const addToCart = (product, quantity = 1) => {
     setItems((current) => {
