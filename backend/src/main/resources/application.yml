@@ -13,17 +13,16 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         jdbc:
           time_zone: America/Bogota
 
 jwt:
   secret: ${JWT_SECRET:bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfcGV0c2hvcF9hcGlfZm9yX3VuaXZlcnNpdHlfcHJvamVjdF8xMjM0NTY=}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
-
 
 paypal:
   client-id: ${PAYPAL_CLIENT_ID:TU_CLIENT_ID_AQUI}
@@ -37,3 +36,18 @@ springdoc:
   api-docs:
     enabled: true
     path: /api-docs
+
+# ── Configuración de logging ──────────────────────────────────────────
+logging:
+  level:
+    root: WARN
+    com.petshop: INFO
+    com.petshop.service: INFO
+    com.petshop.security: WARN
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/petshop.log
