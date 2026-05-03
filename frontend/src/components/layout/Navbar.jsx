@@ -35,17 +35,21 @@ export default function Navbar() {
           <NavLink to="/" className={navClass}>
             Productos
           </NavLink>
-          <NavLink to="/cart" className={navClass}>
-            <span className="inline-flex items-center gap-2">
-              <ShoppingBag size={16} />
-              Carrito
-              {itemCount > 0 && (
-                <span className="rounded-full bg-coral px-2 py-0.5 text-xs text-white">
-                  {itemCount}
-                </span>
-              )}
-            </span>
-          </NavLink>
+
+          {isAuthenticated && (
+            <NavLink to="/cart" className={navClass}>
+              <span className="inline-flex items-center gap-2">
+                <ShoppingBag size={16} />
+                Carrito
+                {itemCount > 0 && (
+                  <span className="rounded-full bg-coral px-2 py-0.5 text-xs text-white">
+                    {itemCount}
+                  </span>
+                )}
+              </span>
+            </NavLink>
+          )}
+
           {isAuthenticated && (
             <NavLink to="/purchases" className={navClass}>
               <span className="inline-flex items-center gap-2">
@@ -54,6 +58,7 @@ export default function Navbar() {
               </span>
             </NavLink>
           )}
+
           {isAdmin && (
             <NavLink to="/admin" className={navClass}>
               Admin
@@ -108,9 +113,16 @@ export default function Navbar() {
             <NavLink to="/" onClick={() => setOpen(false)} className={navClass}>
               Productos
             </NavLink>
-            <NavLink to="/cart" onClick={() => setOpen(false)} className={navClass}>
-              Carrito ({itemCount})
-            </NavLink>
+
+            {isAuthenticated && (
+              <NavLink to="/cart" onClick={() => setOpen(false)} className={navClass}>
+                <span className="inline-flex items-center gap-2">
+                  <ShoppingBag size={16} />
+                  Carrito ({itemCount})
+                </span>
+              </NavLink>
+            )}
+
             {isAuthenticated && (
               <NavLink
                 to="/purchases"
@@ -120,11 +132,13 @@ export default function Navbar() {
                 Mis compras
               </NavLink>
             )}
+
             {isAdmin && (
               <NavLink to="/admin" onClick={() => setOpen(false)} className={navClass}>
                 Admin
               </NavLink>
             )}
+
             {isAuthenticated ? (
               <button
                 onClick={() => {
