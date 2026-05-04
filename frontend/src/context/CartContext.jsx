@@ -2,16 +2,16 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
 
 const CartContext = createContext(null);
-const CART_KEY_PREFIX = "petshop_cart";
 
 function getCartKey(userId) {
-  return userId ? `${CART_KEY_PREFIX}_${userId}` : null;
+  return userId ? `petshop_cart_${userId}` : "petshop_cart_guest";
 }
 
-function getStoredCart(key) {
-  if (!key) return [];
+function getStoredCart(userId) {
+  const key = getCartKey(userId);
   const raw = localStorage.getItem(key);
   if (!raw) return [];
+
   try {
     return JSON.parse(raw);
   } catch {
@@ -22,23 +22,19 @@ function getStoredCart(key) {
 
 export function CartProvider({ children }) {
   const { user } = useAuth();
+  const userId = user?.id ?? null;
 
-  const cartKey = useMemo(
-    () => getCartKey(user?.id),
-    [user?.id]
-  );
+  const [items, setItems] = useState(() => getStoredCart(userId));
 
-  const [items, setItems] = useState(() => getStoredCart(getCartKey(user?.id)));
-
+  // Cuando el usuario cambia (login / logout), carga SU carrito
   useEffect(() => {
-    setItems(getStoredCart(cartKey));
-  }, [cartKey]);
+    setItems(getStoredCart(userId));
+  }, [userId]);
 
+  // Persiste el carrito cada vez que cambian los items o el usuario
   useEffect(() => {
-    if (cartKey) {
-      localStorage.setItem(cartKey, JSON.stringify(items));
-    }
-  }, [items, cartKey]);
+    localStorage.setItem(getCartKey(userId), JSON.stringify(items));
+  }, [items, userId]);
 
   const addToCart = (product, quantity = 1) => {
     setItems((current) => {
