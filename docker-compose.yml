@@ -23,7 +23,7 @@ services:
     container_name: petshop-backend
     restart: unless-stopped
     environment:
-      DB_URL: ${DB_URL:-jdbc:postgresql://db:5432/petshop_db}
+      DB_URL: ${DB_URL:-jdbc:postgresql://db:5433/petshop_db}
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       JWT_SECRET: ${JWT_SECRET:-bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfcGV0c2hvcF9hcGlfZm9yX3VuaXZlcnNpdHlfcHJvamVjdF8xMjM0NTY=}
