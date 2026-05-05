@@ -25,8 +25,8 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
 
 paypal:
-  client-id: ${PAYPAL_CLIENT_ID:TU_CLIENT_ID_AQUI}
-  client-secret: ${PAYPAL_CLIENT_SECRET:TU_SECRET_AQUI}
+  client-id: ${Aap4YuGsATPGW-e1j2mSbxX--4A2rq6AngRz8J3oJC2ZRAjSCLESdLVAN-l-q3x3f44vMyCV3rCZuux4}
+  client-secret: ${EKrNUthI_SEd2VPsMtKychgpji5q4xMyAOOCrbDbX5DVh2x7uQQ-JJagW1a4GjM-4YLRFGRVJjMKXL9X}
   mode: ${PAYPAL_MODE:sandbox}
 
 springdoc:
