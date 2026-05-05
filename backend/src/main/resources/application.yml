@@ -13,10 +13,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
         jdbc:
           time_zone: America/Bogota
 
@@ -33,21 +33,7 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
+    url: /v3/api-docs
   api-docs:
     enabled: true
-    path: /api-docs
-
-# ── Configuración de logging ──────────────────────────────────────────
-logging:
-  level:
-    root: WARN
-    com.petshop: INFO
-    com.petshop.service: INFO
-    com.petshop.security: WARN
-    org.springframework.security: WARN
-    org.springframework.web: WARN
-    org.hibernate.SQL: WARN
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
-  file:
-    name: logs/petshop.log
+    path: /v3/api-docs
