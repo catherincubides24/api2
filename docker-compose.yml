@@ -23,7 +23,7 @@ services:
     container_name: petshop-backend
     restart: unless-stopped
     environment:
-      DB_URL: ${DB_URL:-jdbc:postgresql://db:5433/petshop_db}
+      DB_URL: ${DB_URL:-jdbc:postgresql://db:5432/petshop_db}
       DB_USERNAME: ${DB_USERNAME:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       JWT_SECRET: ${JWT_SECRET:-bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfcGV0c2hvcF9hcGlfZm9yX3VuaXZlcnNpdHlfcHJvamVjdF8xMjM0NTY=}
@@ -48,5 +48,37 @@ services:
     depends_on:
       - backend
 
+  sonar-db:
+    image: postgres:16-alpine
+    container_name: sonar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sonarqube
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
+
+  sonarqube:
+    image: sonarqube:10-community
+    container_name: sonarqube
+    restart: unless-stopped
+    depends_on:
+      - sonar-db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_logs:/opt/sonarqube/logs
+      - sonar_extensions:/opt/sonarqube/extensions
+
 volumes:
   petshop_db_data:
+  sonar_db_data:
+  sonar_data:
+  sonar_logs:
+  sonar_extensions:
