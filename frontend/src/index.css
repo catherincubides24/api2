@@ -7,6 +7,13 @@
 :root {
   --bg-main: #fffaf3;
   --text-main: #1d2838;
+  color-scheme: light;
+}
+
+.dark {
+  --bg-main: #0f172a;
+  --text-main: #fffaf3;
+  color-scheme: dark;
 }
 
 * {
@@ -22,6 +29,7 @@ body {
     radial-gradient(circle at 60% 100%, rgba(255, 215, 181, 0.25), transparent 50%),
     var(--bg-main);
   color: var(--text-main);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {

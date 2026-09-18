@@ -6,7 +6,7 @@ const FALLBACK_IMAGE =
 
 export default function ProductCard({ product, onAddToCart }) {
   return (
-    <article className="group animate-rise overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-card transition hover:-translate-y-1">
+    <article className="group animate-rise overflow-hidden rounded-3xl border border-white/70 bg-white/90 shadow-card transition hover:-translate-y-1 dark:border-white/10 dark:bg-slate-800/90">
       <div className="relative h-52 overflow-hidden">
         <img
           src={product.imageUrl || FALLBACK_IMAGE}
@@ -21,8 +21,10 @@ export default function ProductCard({ product, onAddToCart }) {
 
       <div className="space-y-4 p-5">
         <div>
-          <h3 className="text-lg font-bold text-ink">{product.name}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-ink/65">{product.description}</p>
+          <h3 className="text-lg font-bold text-ink dark:text-cream">{product.name}</h3>
+          <p className="mt-1 line-clamp-2 text-sm text-ink/65 dark:text-cream/65">
+            {product.description}
+          </p>
         </div>
 
         <div className="flex items-end justify-between">
@@ -30,12 +32,12 @@ export default function ProductCard({ product, onAddToCart }) {
             <p className="text-2xl font-extrabold text-coral">
               {formatCurrency(product.price)}
             </p>
-            <p className="text-xs text-ink/60">Stock: {product.stock}</p>
+            <p className="text-xs text-ink/60 dark:text-cream/60">Stock: {product.stock}</p>
           </div>
 
           <button
             onClick={() => onAddToCart(product)}
-            className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-cream transition hover:bg-dusk disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-cream transition hover:bg-dusk disabled:cursor-not-allowed disabled:opacity-50 dark:bg-cream dark:text-ink dark:hover:bg-white"
             disabled={!product.active || product.stock <= 0}
           >
             <ShoppingCart size={16} />

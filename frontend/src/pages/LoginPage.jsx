@@ -28,7 +28,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-4xl gap-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-card md:grid-cols-2 md:p-10">
+    <div className="mx-auto grid max-w-4xl gap-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-card dark:border-white/10 dark:bg-slate-800/90 md:grid-cols-2 md:p-10">
       <div className="rounded-3xl bg-gradient-to-br from-ink via-dusk to-mint p-7 text-cream">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-peach">
           Bienvenido
@@ -41,7 +41,7 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="mb-1 block text-sm font-semibold">Email</label>
+          <label className="mb-1 block text-sm font-semibold text-ink dark:text-cream">Email</label>
           <input
             type="email"
             required
@@ -49,13 +49,13 @@ export default function LoginPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, email: event.target.value }))
             }
-            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-ink outline-none ring-coral/30 transition focus:ring dark:border-white/15 dark:bg-slate-900 dark:text-cream"
             placeholder="tu@email.com"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold">Contraseña</label>
+          <label className="mb-1 block text-sm font-semibold text-ink dark:text-cream">Contraseña</label>
           <input
             type="password"
             required
@@ -63,7 +63,7 @@ export default function LoginPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, password: event.target.value }))
             }
-            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-ink outline-none ring-coral/30 transition focus:ring dark:border-white/15 dark:bg-slate-900 dark:text-cream"
             placeholder="******"
           />
         </div>
@@ -77,12 +77,12 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60"
+          className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60 dark:bg-cream dark:text-ink dark:hover:bg-white"
         >
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
 
-        <p className="text-center text-sm text-ink/70">
+        <p className="text-center text-sm text-ink/70 dark:text-cream/70">
           ¿No tienes cuenta?{" "}
           <Link to="/register" className="font-semibold text-coral hover:underline">
             Regístrate aquí

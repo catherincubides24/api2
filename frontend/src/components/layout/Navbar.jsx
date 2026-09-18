@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import ThemeToggle from "../ThemeToggle"; // 👈 nuevo
 
 function navClass({ isActive }) {
   return [
@@ -61,7 +62,9 @@ export default function Navbar() {
           )}
         </nav>
 
+        {/* 👇 aquí está la clave: el botón agregado en el bloque de la derecha */}
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           {isAuthenticated ? (
             <>
               <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm shadow-soft">
@@ -93,13 +96,17 @@ export default function Navbar() {
           )}
         </div>
 
-        <button
-          onClick={() => setOpen((prev) => !prev)}
-          className="inline-flex rounded-full border border-ink/20 p-2 text-ink md:hidden"
-          aria-label="Abrir menú"
-        >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        {/* 👇 y también en el menú móvil */}
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            onClick={() => setOpen((prev) => !prev)}
+            className="inline-flex rounded-full border border-ink/20 p-2 text-ink"
+            aria-label="Abrir menú"
+          >
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {open && (

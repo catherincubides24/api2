@@ -13,6 +13,9 @@ const initialForm = {
   active: true,
 };
 
+const inputClass =
+  "rounded-xl border border-ink/15 px-4 py-2.5 text-ink outline-none ring-coral/30 transition focus:ring dark:border-white/15 dark:bg-slate-900 dark:text-cream";
+
 export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(initialForm);
@@ -104,7 +107,7 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl bg-white/85 p-6 shadow-card">
+      <section className="rounded-3xl bg-white/85 p-6 shadow-card dark:bg-slate-800/90">
         <SectionTitle
           eyebrow="Administración"
           title={isEditing ? "Editar producto" : "Crear producto"}
@@ -119,7 +122,7 @@ export default function AdminPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, name: event.target.value }))
             }
-            className="rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
           />
           <input
             required
@@ -131,7 +134,7 @@ export default function AdminPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, price: event.target.value }))
             }
-            className="rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
           />
           <input
             required
@@ -142,7 +145,7 @@ export default function AdminPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, stock: event.target.value }))
             }
-            className="rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
           />
           <input
             placeholder="Categoría"
@@ -150,7 +153,7 @@ export default function AdminPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, category: event.target.value }))
             }
-            className="rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
           />
           <input
             placeholder="URL de imagen"
@@ -158,7 +161,7 @@ export default function AdminPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, imageUrl: event.target.value }))
             }
-            className="md:col-span-2 rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={`md:col-span-2 ${inputClass}`}
           />
           <textarea
             placeholder="Descripción"
@@ -170,10 +173,10 @@ export default function AdminPage() {
               }))
             }
             rows={3}
-            className="md:col-span-2 rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={`md:col-span-2 ${inputClass}`}
           />
 
-          <label className="inline-flex items-center gap-2 text-sm font-semibold text-ink/80">
+          <label className="inline-flex items-center gap-2 text-sm font-semibold text-ink/80 dark:text-cream/80">
             <input
               type="checkbox"
               checked={Boolean(form.active)}
@@ -192,7 +195,7 @@ export default function AdminPage() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="rounded-xl border border-ink/20 px-4 py-2.5 text-sm font-semibold"
+                className="rounded-xl border border-ink/20 px-4 py-2.5 text-sm font-semibold text-ink dark:border-white/20 dark:text-cream"
               >
                 Cancelar edición
               </button>
@@ -200,7 +203,7 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={saving}
-              className="rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-cream disabled:opacity-60"
+              className="rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-cream disabled:opacity-60 dark:bg-cream dark:text-ink"
             >
               {saving
                 ? "Guardando..."
@@ -212,13 +215,13 @@ export default function AdminPage() {
         </form>
 
         {message && (
-          <div className="mt-4 rounded-xl bg-sand px-4 py-3 text-sm text-ink/80">
+          <div className="mt-4 rounded-xl bg-sand px-4 py-3 text-sm text-ink/80 dark:bg-slate-700 dark:text-cream/85">
             {message}
           </div>
         )}
       </section>
 
-      <section className="rounded-3xl bg-white/85 p-6 shadow-card">
+      <section className="rounded-3xl bg-white/85 p-6 shadow-card dark:bg-slate-800/90">
         <SectionTitle
           eyebrow="Catálogo"
           title="Productos actuales"
@@ -226,27 +229,29 @@ export default function AdminPage() {
         />
 
         {loading ? (
-          <p className="mt-4 text-sm text-ink/70">Cargando productos...</p>
+          <p className="mt-4 text-sm text-ink/70 dark:text-cream/70">Cargando productos...</p>
         ) : (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {products.map((product) => (
               <article
                 key={product.id}
-                className="rounded-2xl border border-ink/10 bg-white p-4"
+                className="rounded-2xl border border-ink/10 bg-white p-4 dark:border-white/10 dark:bg-slate-900"
               >
-                <h3 className="font-semibold text-ink">{product.name}</h3>
-                <p className="text-sm text-ink/65 line-clamp-2">
+                <h3 className="font-semibold text-ink dark:text-cream">{product.name}</h3>
+                <p className="text-sm text-ink/65 line-clamp-2 dark:text-cream/65">
                   {product.description}
                 </p>
                 <p className="mt-2 text-sm font-semibold text-coral">
                   {formatCurrency(product.price)} - Stock: {product.stock}
                 </p>
-                <p className="text-xs text-ink/60">Estado: {product.active ? "Activo" : "Inactivo"}</p>
+                <p className="text-xs text-ink/60 dark:text-cream/60">
+                  Estado: {product.active ? "Activo" : "Inactivo"}
+                </p>
 
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={() => handleEdit(product)}
-                    className="rounded-xl border border-ink/20 px-3 py-2 text-xs font-semibold text-ink"
+                    className="rounded-xl border border-ink/20 px-3 py-2 text-xs font-semibold text-ink dark:border-white/20 dark:text-cream"
                   >
                     Editar
                   </button>

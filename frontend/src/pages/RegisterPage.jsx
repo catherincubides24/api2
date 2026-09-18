@@ -41,11 +41,15 @@ export default function RegisterPage() {
     }
   };
 
+  const inputClass =
+    "w-full rounded-xl border border-ink/15 px-4 py-2.5 text-ink outline-none ring-coral/30 transition focus:ring dark:border-white/15 dark:bg-slate-900 dark:text-cream";
+  const labelClass = "mb-1 block text-sm font-semibold text-ink dark:text-cream";
+
   return (
-    <div className="mx-auto grid max-w-4xl gap-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-card md:grid-cols-2 md:p-10">
+    <div className="mx-auto grid max-w-4xl gap-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-card dark:border-white/10 dark:bg-slate-800/90 md:grid-cols-2 md:p-10">
       <form onSubmit={handleSubmit} className="order-2 space-y-4 md:order-1">
         <div>
-          <label className="mb-1 block text-sm font-semibold">Nombre completo</label>
+          <label className={labelClass}>Nombre completo</label>
           <input
             type="text"
             required
@@ -53,13 +57,13 @@ export default function RegisterPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, fullName: event.target.value }))
             }
-            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
             placeholder="Nombre Apellido"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold">Email</label>
+          <label className={labelClass}>Email</label>
           <input
             type="email"
             required
@@ -67,13 +71,13 @@ export default function RegisterPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, email: event.target.value }))
             }
-            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
             placeholder="tu@email.com"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold">Contraseña</label>
+          <label className={labelClass}>Contraseña</label>
           <input
             type="password"
             required
@@ -82,13 +86,13 @@ export default function RegisterPage() {
             onChange={(event) =>
               setForm((current) => ({ ...current, password: event.target.value }))
             }
-            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
             placeholder="Mínimo 6 caracteres"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-semibold">Confirmar contraseña</label>
+          <label className={labelClass}>Confirmar contraseña</label>
           <input
             type="password"
             required
@@ -100,7 +104,7 @@ export default function RegisterPage() {
                 confirmPassword: event.target.value,
               }))
             }
-            className="w-full rounded-xl border border-ink/15 px-4 py-2.5 outline-none ring-coral/30 transition focus:ring"
+            className={inputClass}
             placeholder="Repite tu contraseña"
           />
         </div>
@@ -114,12 +118,12 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60"
+          className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60 dark:bg-cream dark:text-ink dark:hover:bg-white"
         >
           {loading ? "Creando cuenta..." : "Crear cuenta"}
         </button>
 
-        <p className="text-center text-sm text-ink/70">
+        <p className="text-center text-sm text-ink/70 dark:text-cream/70">
           ¿Ya tienes cuenta?{" "}
           <Link to="/login" className="font-semibold text-coral hover:underline">
             Inicia sesión
