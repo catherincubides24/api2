@@ -1,6 +1,6 @@
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Banknote, CreditCard, Landmark, Minus, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SectionTitle from "../components/SectionTitle";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -8,14 +8,24 @@ import { orderService } from "../services/orderService";
 import { paymentService } from "../services/paymentService";
 import { formatCurrency } from "../utils/formatCurrency";
 
+const paymentMethods = [
+  { value: "CASH", label: "Efectivo", icon: Banknote, hint: "Paga al recibir tu pedido." },
+  { value: "TRANSFER", label: "Transferencia", icon: Landmark, hint: "Te compartimos los datos bancarios." },
+  { value: "PAYPAL", label: "PayPal", icon: CreditCard, hint: "Pago en línea seguro." },
+];
+
 export default function CartPage() {
   const { items, total, updateQuantity, removeFromCart, clearCart } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
-  const handleCheckout = async () => {
-    if (items.length === 0) return;
+  // Paso 1: "Finalizar compra" crea el pedido en PENDING.
+  // Paso 2: según el método elegido, se confirma directamente (efectivo / transferencia)
+  // o se redirige a PayPal (se conserva exactamente el flujo externo existente).
+  const handleSelectPayment = async (method) => {
     if (!user) {
       setFeedback("Debes iniciar sesión para continuar.");
       return;
@@ -25,28 +35,30 @@ export default function CartPage() {
     setFeedback("");
 
     try {
-      // PASO 1: Crear el pedido en tu base de datos
       const order = await orderService.createOrder({
-        userId: user.id, // ahora seguro porque verificamos user arriba
+        userId: user.id,
         status: "PENDING",
+        paymentMethod: method,
         items: items.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
         })),
       });
 
-      // PASO 2: Guardar el orderId para recuperarlo después del pago
-      sessionStorage.setItem("pendingPayPalOrderId", String(order.id));
+      if (method === "PAYPAL") {
+        sessionStorage.setItem("pendingPayPalOrderId", String(order.id));
+        const paypal = await paymentService.createPayPalOrder(order.id);
+        window.location.href = paypal.approvalUrl;
+        return;
+      }
 
-      // PASO 3: Crear la orden en PayPal y obtener la URL de aprobación
-      const paypal = await paymentService.createPayPalOrder(order.id);
-
-      // PASO 4: Redirigir al usuario a PayPal
-      window.location.href = paypal.approvalUrl;
+      // Efectivo / Transferencia: el pedido queda pendiente hasta que el
+      // administrador confirme el pago desde el módulo de pedidos/ventas.
+      clearCart();
+      navigate("/purchases");
     } catch (err) {
       setFeedback(
-        err.response?.data?.message ||
-          "No se pudo iniciar el pago. Inténtalo de nuevo."
+        err.response?.data?.message || "No se pudo iniciar la compra. Inténtalo de nuevo."
       );
       setIsSubmitting(false);
     }
@@ -136,29 +148,43 @@ export default function CartPage() {
           Cliente: <span className="font-semibold">{user?.fullName}</span>
         </p>
 
-        <button
-          onClick={handleCheckout}
-          disabled={isSubmitting || !user}
-          className="w-full rounded-xl bg-coral px-4 py-3 text-sm font-semibold text-white transition hover:bg-coral/90 disabled:opacity-60"
-        >
-          {isSubmitting ? (
-            "Redirigiendo a PayPal..."
-          ) : (
-            <span className="flex items-center justify-center gap-2">
-              <img
-                src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg"
-                alt="PayPal"
-                className="h-5 rounded"
-              />
-              Pagar con PayPal
-            </span>
-          )}
-        </button>
+        {!showPaymentOptions ? (
+          <button
+            onClick={() => setShowPaymentOptions(true)}
+            disabled={!user}
+            className="w-full rounded-xl bg-coral px-4 py-3 text-sm font-semibold text-white transition hover:bg-coral/90 disabled:opacity-60"
+          >
+            Finalizar compra
+          </button>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm font-semibold text-cream/90">Elige tu método de pago</p>
+            {paymentMethods.map(({ value, label, icon: Icon, hint }) => (
+              <button
+                key={value}
+                onClick={() => handleSelectPayment(value)}
+                disabled={isSubmitting}
+                className="flex w-full items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-left text-sm transition hover:bg-white/20 disabled:opacity-60"
+              >
+                <Icon size={18} />
+                <span>
+                  <span className="block font-semibold">{label}</span>
+                  <span className="block text-xs text-cream/70">{hint}</span>
+                </span>
+              </button>
+            ))}
+            <button
+              onClick={() => setShowPaymentOptions(false)}
+              disabled={isSubmitting}
+              className="w-full rounded-xl border border-white/30 px-4 py-2 text-xs font-semibold text-cream/80"
+            >
+              Volver
+            </button>
+          </div>
+        )}
 
         {feedback && (
-          <p className="rounded-xl bg-white/15 px-3 py-2 text-sm text-cream">
-            {feedback}
-          </p>
+          <p className="rounded-xl bg-white/15 px-3 py-2 text-sm text-cream">{feedback}</p>
         )}
 
         <button

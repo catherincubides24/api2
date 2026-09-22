@@ -4,8 +4,9 @@ import Navbar from "./components/layout/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
-import { ThemeProvider } from "./context/ThemeContext"; // 👈 nuevo
+import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminPage from "./pages/AdminPage";
+import AdminSalesPage from "./pages/AdminSalesPage";
 import CartPage from "./pages/CartPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
@@ -47,6 +48,8 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+
+          {/* Módulos de administración */}
           <Route
             path="/admin"
             element={
@@ -55,7 +58,24 @@ function AppShell() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/sales"
+            element={
+              <ProtectedRoute requireAdmin>
+                <AdminSalesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <ProtectedRoute requireAdmin>
+                <AdminOrdersPage />
+              </ProtectedRoute>
+            }
+          />
 
+          {/* Rutas de pago PayPal — públicas porque PayPal redirige aquí sin token */}
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/payment/cancel" element={<PaymentCancelPage />} />
 
@@ -70,14 +90,12 @@ function AppShell() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <AppShell />
-          </CartProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <AppShell />
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

@@ -45,6 +45,13 @@ public class PetOrder {
     @Column(nullable = false)
     private OrderStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    /** Numero de ticket de venta, se genera automaticamente al crear el pedido (ej. HS-000123). */
+    @Column(unique = true, length = 20)
+    private String ticketNumber;
+
     @Column(nullable = false, precision = 10, scale = 2)
     @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;

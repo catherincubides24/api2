@@ -47,3 +47,19 @@ button {
 ::selection {
   background: rgba(255, 107, 74, 0.2);
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #ticket-content,
+  #ticket-content * {
+    visibility: visible;
+  }
+  #ticket-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

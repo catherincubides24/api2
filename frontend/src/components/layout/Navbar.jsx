@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
-import ThemeToggle from "../ThemeToggle"; // 👈 nuevo
+import ThemeToggle from "../ThemeToggle";
 
 function navClass({ isActive }) {
   return [
@@ -20,54 +20,66 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink/5 bg-cream/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-ink/5 bg-cream/80 backdrop-blur-md dark:border-white/10 dark:bg-slate-900/80">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2 text-ink">
+        <Link to="/" className="flex items-center gap-2 text-ink dark:text-cream">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ink text-cream shadow-soft">
             <PawPrint size={20} />
           </span>
           <div>
             <p className="font-display text-2xl leading-none">Huellitas Shop</p>
-            <p className="text-xs text-ink/60">Cuidado y estilo para tu mascota</p>
+            <p className="text-xs text-ink/60 dark:text-cream/60">Cuidado y estilo para tu mascota</p>
           </div>
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">
-          <NavLink to="/" className={navClass}>
-            Productos
-          </NavLink>
-          <NavLink to="/cart" className={navClass}>
-            <span className="inline-flex items-center gap-2">
-              <ShoppingBag size={16} />
-              Carrito
-              {itemCount > 0 && (
-                <span className="rounded-full bg-coral px-2 py-0.5 text-xs text-white">
-                  {itemCount}
+          {!isAdmin && (
+            <>
+              <NavLink to="/" className={navClass}>
+                Productos
+              </NavLink>
+              <NavLink to="/cart" className={navClass}>
+                <span className="inline-flex items-center gap-2">
+                  <ShoppingBag size={16} />
+                  Carrito
+                  {itemCount > 0 && (
+                    <span className="rounded-full bg-coral px-2 py-0.5 text-xs text-white">
+                      {itemCount}
+                    </span>
+                  )}
                 </span>
+              </NavLink>
+              {isAuthenticated && (
+                <NavLink to="/purchases" className={navClass}>
+                  <span className="inline-flex items-center gap-2">
+                    <ReceiptText size={16} />
+                    Mis compras
+                  </span>
+                </NavLink>
               )}
-            </span>
-          </NavLink>
-          {isAuthenticated && (
-            <NavLink to="/purchases" className={navClass}>
-              <span className="inline-flex items-center gap-2">
-                <ReceiptText size={16} />
-                Mis compras
-              </span>
-            </NavLink>
+            </>
           )}
+
           {isAdmin && (
-            <NavLink to="/admin" className={navClass}>
-              Admin
-            </NavLink>
+            <>
+              <NavLink to="/admin" className={navClass} end>
+                Productos
+              </NavLink>
+              <NavLink to="/admin/sales" className={navClass}>
+                Ventas
+              </NavLink>
+              <NavLink to="/admin/orders" className={navClass}>
+                Pedidos
+              </NavLink>
+            </>
           )}
         </nav>
 
-        {/* 👇 aquí está la clave: el botón agregado en el bloque de la derecha */}
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
           {isAuthenticated ? (
             <>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm shadow-soft">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm shadow-soft dark:bg-slate-800 dark:text-cream">
                 <UserCircle size={18} className="text-mint" />
                 <span>{user?.fullName}</span>
               </div>
@@ -82,7 +94,7 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-                className="rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:bg-white"
+                className="rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:bg-white dark:text-cream dark:hover:bg-slate-800"
               >
                 Ingresar
               </Link>
@@ -96,41 +108,50 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* 👇 y también en el menú móvil */}
-        <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle />
-          <button
-            onClick={() => setOpen((prev) => !prev)}
-            className="inline-flex rounded-full border border-ink/20 p-2 text-ink"
-            aria-label="Abrir menú"
-          >
-            {open ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          className="inline-flex rounded-full border border-ink/20 p-2 text-ink md:hidden dark:text-cream"
+          aria-label="Abrir menú"
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
 
       {open && (
-        <div className="border-t border-ink/10 bg-cream px-4 py-4 md:hidden">
+        <div className="border-t border-ink/10 bg-cream px-4 py-4 md:hidden dark:border-white/10 dark:bg-slate-900">
           <div className="flex flex-col gap-2">
-            <NavLink to="/" onClick={() => setOpen(false)} className={navClass}>
-              Productos
-            </NavLink>
-            <NavLink to="/cart" onClick={() => setOpen(false)} className={navClass}>
-              Carrito ({itemCount})
-            </NavLink>
-            {isAuthenticated && (
-              <NavLink
-                to="/purchases"
-                onClick={() => setOpen(false)}
-                className={navClass}
-              >
-                Mis compras
-              </NavLink>
+            <ThemeToggle className="self-start" />
+            {!isAdmin && (
+              <>
+                <NavLink to="/" onClick={() => setOpen(false)} className={navClass}>
+                  Productos
+                </NavLink>
+                <NavLink to="/cart" onClick={() => setOpen(false)} className={navClass}>
+                  Carrito ({itemCount})
+                </NavLink>
+                {isAuthenticated && (
+                  <NavLink
+                    to="/purchases"
+                    onClick={() => setOpen(false)}
+                    className={navClass}
+                  >
+                    Mis compras
+                  </NavLink>
+                )}
+              </>
             )}
             {isAdmin && (
-              <NavLink to="/admin" onClick={() => setOpen(false)} className={navClass}>
-                Admin
-              </NavLink>
+              <>
+                <NavLink to="/admin" onClick={() => setOpen(false)} className={navClass} end>
+                  Productos
+                </NavLink>
+                <NavLink to="/admin/sales" onClick={() => setOpen(false)} className={navClass}>
+                  Ventas
+                </NavLink>
+                <NavLink to="/admin/orders" onClick={() => setOpen(false)} className={navClass}>
+                  Pedidos
+                </NavLink>
+              </>
             )}
             {isAuthenticated ? (
               <button

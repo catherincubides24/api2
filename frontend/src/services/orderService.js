@@ -11,13 +11,33 @@ export const orderService = {
     return data;
   },
 
-  async getAllOrders() {
-    const { data } = await api.get("/orders");
+  async updatePayment(id, paymentMethod, markAsPaid = true) {
+    const { data } = await api.patch(`/orders/${id}/payment`, {
+      paymentMethod,
+      markAsPaid,
+    });
     return data;
   },
 
-  async getOrdersByUser(userId) {
-    const { data } = await api.get(`/orders/user/${userId}`);
+  async getAllOrders(page = 0, size = 10) {
+    const { data } = await api.get("/orders", { params: { page, size } });
+    return data;
+  },
+
+  async getOrdersByUser(userId, page = 0, size = 10) {
+    const { data } = await api.get(`/orders/user/${userId}`, {
+      params: { page, size },
+    });
+    return data;
+  },
+
+  async getOrderById(id) {
+    const { data } = await api.get(`/orders/${id}`);
+    return data;
+  },
+
+  async getTicket(id) {
+    const { data } = await api.get(`/orders/${id}/ticket`);
     return data;
   },
 };

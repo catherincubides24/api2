@@ -17,6 +17,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import com.petshop.entity.PaymentMethod;
 
 import java.util.Base64;
 import java.util.List;
@@ -146,6 +147,7 @@ public class PayPalService {
                         .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado: " + orderId));
 
                 petOrder.setStatus(OrderStatus.PAID);
+                petOrder.setPaymentMethod(PaymentMethod.PAYPAL); // <-- nueva línea
                 petOrderRepository.save(petOrder);
 
                 return new PaymentCaptureResponse(
