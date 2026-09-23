@@ -7,6 +7,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = location.state?.from?.pathname || "/";
+  const closedByInactivity = location.state?.reason === "inactivity";
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -67,6 +68,12 @@ export default function LoginPage() {
             placeholder="******"
           />
         </div>
+
+        {closedByInactivity && !error && (
+          <div className="rounded-xl border border-mint/30 bg-mint/15 px-3 py-2 text-sm text-dusk dark:text-cream">
+            Tu sesión se cerró por inactividad. Ingresa de nuevo para continuar.
+          </div>
+        )}
 
         {error && (
           <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm text-coral">

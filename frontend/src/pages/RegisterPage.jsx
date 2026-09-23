@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
+import { PRIVACY_POLICY_VERSION } from "../data/privacyPolicyContent";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -12,6 +14,8 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
+  const [acceptedPolicy, setAcceptedPolicy] = useState(false);
+  const [showPolicy, setShowPolicy] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,6 +28,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!acceptedPolicy) {
+      setError("Debes aceptar la política de tratamiento de datos para continuar");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -32,6 +41,8 @@ export default function RegisterPage() {
         email: form.email,
         password: form.password,
         role: "CUSTOMER",
+        acceptedDataPolicy: acceptedPolicy,
+        dataPolicyVersion: PRIVACY_POLICY_VERSION,
       });
       navigate("/");
     } catch (err) {
@@ -109,6 +120,26 @@ export default function RegisterPage() {
           />
         </div>
 
+        <label className="flex items-start gap-2 rounded-xl bg-sand/60 p-3 text-sm text-ink/80 dark:bg-slate-900/60 dark:text-cream/80">
+          <input
+            type="checkbox"
+            checked={acceptedPolicy}
+            onChange={(event) => setAcceptedPolicy(event.target.checked)}
+            className="mt-1"
+            required
+          />
+          <span>
+            He leído y acepto la{" "}
+            <button
+              type="button"
+              onClick={() => setShowPolicy(true)}
+              className="font-semibold text-coral underline"
+            >
+              Política de Tratamiento de Datos Personales
+            </button>
+          </span>
+        </label>
+
         {error && (
           <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm text-coral">
             {error}
@@ -117,7 +148,7 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !acceptedPolicy}
           className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60 dark:bg-cream dark:text-ink dark:hover:bg-white"
         >
           {loading ? "Creando cuenta..." : "Crear cuenta"}
@@ -141,6 +172,8 @@ export default function RegisterPage() {
           mascota.
         </p>
       </div>
+
+      <PrivacyPolicyModal open={showPolicy} onClose={() => setShowPolicy(false)} />
     </div>
   );
 }
