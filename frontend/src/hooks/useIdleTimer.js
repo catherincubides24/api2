@@ -14,6 +14,7 @@ export function useIdleTimer({ enabled, warningAfterMs, timeoutAfterMs, onTimeou
   const [remainingMs, setRemainingMs] = useState(timeoutAfterMs - warningAfterMs);
 
   const lastActivityRef = useRef(Date.now());
+  const lastMouseRef = useRef(null);
   const isWarningRef = useRef(false);
   const onTimeoutRef = useRef(onTimeout);
 
@@ -32,14 +33,21 @@ export function useIdleTimer({ enabled, warningAfterMs, timeoutAfterMs, onTimeou
 
     reset();
 
-    const handleActivity = () => {
-      if (!isWarningRef.current) {
-        lastActivityRef.current = Date.now();
+    const handleActivity = (event) => {
+      if (isWarningRef.current) return;
+
+      // Ignora mousemove sintéticos (mismas coordenadas que el anterior).
+      if (event.type === "mousemove") {
+        const last = lastMouseRef.current;
+        if (last && last.x === event.screenX && last.y === event.screenY) return;
+        lastMouseRef.current = { x: event.screenX, y: event.screenY };
       }
+
+      lastActivityRef.current = Date.now();
     };
 
-    ACTIVITY_EVENTS.forEach((event) =>
-      window.addEventListener(event, handleActivity, { passive: true })
+    ACTIVITY_EVENTS.forEach((name) =>
+      window.addEventListener(name, handleActivity, { passive: true })
     );
 
     const interval = setInterval(() => {
@@ -61,8 +69,8 @@ export function useIdleTimer({ enabled, warningAfterMs, timeoutAfterMs, onTimeou
 
     return () => {
       clearInterval(interval);
-      ACTIVITY_EVENTS.forEach((event) =>
-        window.removeEventListener(event, handleActivity)
+      ACTIVITY_EVENTS.forEach((name) =>
+        window.removeEventListener(name, handleActivity)
       );
     };
   }, [enabled, warningAfterMs, timeoutAfterMs, reset]);
