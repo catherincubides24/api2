@@ -37,3 +37,6 @@ springdoc:
   api-docs:
     enabled: true
     path: /api-docs
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID:631274127830-m72o0d2fns4hisvpt76fo0irhqbpf227.apps.googleusercontent.com}

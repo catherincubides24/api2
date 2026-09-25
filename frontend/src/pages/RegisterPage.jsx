@@ -1,3 +1,4 @@
+import { GoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -5,7 +6,7 @@ import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import { PRIVACY_POLICY_VERSION } from "../data/privacyPolicyContent";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -49,6 +50,23 @@ export default function RegisterPage() {
       setError(err.response?.data?.message || "No se pudo crear la cuenta");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async ({ credential }) => {
+    if (!acceptedPolicy) {
+      setError("Debes aceptar la política de tratamiento de datos para continuar");
+      return;
+    }
+
+    setError("");
+    try {
+      await loginWithGoogle(credential);
+      navigate("/");
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "No se pudo crear la cuenta con Google"
+      );
     }
   };
 
@@ -154,7 +172,26 @@ export default function RegisterPage() {
           {loading ? "Creando cuenta..." : "Crear cuenta"}
         </button>
 
-        <p className="text-center text-sm text-ink/70 dark:text-cream/70">
+        <div className="flex items-center gap-3 text-xs text-ink/50 dark:text-cream/50">
+          <span className="h-px flex-1 bg-ink/10 dark:bg-white/10" />
+          o
+          <span className="h-px flex-1 bg-ink/10 dark:bg-white/10" />
+        </div>
+
+        <div
+          className={
+            acceptedPolicy
+              ? "flex justify-center"
+              : "flex justify-center opacity-50 pointer-events-none"
+          }
+        >
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError("Falló el registro con Google")}
+          />
+        </div>
+
+        <p className="pt-2 text-center text-sm text-ink/70 dark:text-cream/70">
           ¿Ya tienes cuenta?{" "}
           <Link to="/login" className="font-semibold text-coral hover:underline">
             Inicia sesión

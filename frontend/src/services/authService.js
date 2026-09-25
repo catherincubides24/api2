@@ -10,4 +10,9 @@ export const authService = {
     const { data } = await api.post("/auth/register", payload);
     return data;
   },
+
+  async googleLogin(credential) {
+    const { data } = await api.post("/auth/google", { credential });
+    return data;
+  },
 };

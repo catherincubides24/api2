@@ -49,6 +49,12 @@ export function AuthProvider({ children }) {
     return session;
   };
 
+  const loginWithGoogle = async (credential) => {
+    const session = await authService.googleLogin(credential);
+    persistSession(session);
+    return session;
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -64,6 +70,7 @@ export function AuthProvider({ children }) {
       isAdmin: user?.role === "ADMIN",
       login,
       register,
+      loginWithGoogle,
       logout,
     }),
     [token, user]

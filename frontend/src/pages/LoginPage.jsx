@@ -1,13 +1,13 @@
+import { GoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const redirectTo = location.state?.from?.pathname || "/";
-  const closedByInactivity = location.state?.reason === "inactivity";
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -25,6 +25,18 @@ export default function LoginPage() {
       setError(err.response?.data?.message || "No se pudo iniciar sesión");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async ({ credential }) => {
+    setError("");
+    try {
+      await loginWithGoogle(credential);
+      navigate(redirectTo, { replace: true });
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "No se pudo iniciar sesión con Google"
+      );
     }
   };
 
@@ -69,12 +81,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {closedByInactivity && !error && (
-          <div className="rounded-xl border border-mint/30 bg-mint/15 px-3 py-2 text-sm text-dusk dark:text-cream">
-            Tu sesión se cerró por inactividad. Ingresa de nuevo para continuar.
-          </div>
-        )}
-
         {error && (
           <div className="rounded-xl border border-coral/30 bg-coral/10 px-3 py-2 text-sm text-coral">
             {error}
@@ -89,7 +95,20 @@ export default function LoginPage() {
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
 
-        <p className="text-center text-sm text-ink/70 dark:text-cream/70">
+        <div className="flex items-center gap-3 text-xs text-ink/50 dark:text-cream/50">
+          <span className="h-px flex-1 bg-ink/10 dark:bg-white/10" />
+          o
+          <span className="h-px flex-1 bg-ink/10 dark:bg-white/10" />
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError("Falló el inicio de sesión con Google")}
+          />
+        </div>
+
+        <p className="pt-2 text-center text-sm text-ink/70 dark:text-cream/70">
           ¿No tienes cuenta?{" "}
           <Link to="/register" className="font-semibold text-coral hover:underline">
             Regístrate aquí

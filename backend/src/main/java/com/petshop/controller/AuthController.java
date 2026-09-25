@@ -2,6 +2,7 @@ package com.petshop.controller;
 
 import com.petshop.dto.auth.AuthRequest;
 import com.petshop.dto.auth.AuthResponse;
+import com.petshop.dto.auth.GoogleAuthRequest;
 import com.petshop.dto.auth.RegisterRequest;
 import com.petshop.service.AuthService;
 import jakarta.validation.Valid;
@@ -28,5 +29,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> google(@Valid @RequestBody GoogleAuthRequest request) {
+        return ResponseEntity.ok(authService.loginWithGoogle(request));
     }
 }

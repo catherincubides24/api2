@@ -1,9 +1,11 @@
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./components/layout/Footer";
 import Navbar from "./components/layout/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminPage from "./pages/AdminPage";
 import AdminSalesPage from "./pages/AdminSalesPage";
@@ -92,12 +94,16 @@ function AppShell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <AppShell />
-        </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <CartProvider>
+              <AppShell />
+            </CartProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </GoogleOAuthProvider>
   );
 }
