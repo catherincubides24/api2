@@ -15,7 +15,7 @@ function navClass({ isActive }) {
 }
 
 export default function Navbar() {
-  const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, isStaff, logout } = useAuth();
   const { itemCount } = useCart();
   const [open, setOpen] = useState(false);
 
@@ -71,10 +71,16 @@ export default function Navbar() {
               <NavLink to="/admin/orders" className={navClass}>
                 Pedidos
               </NavLink>
+             
             </>
           )}
         </nav>
 
+          {isStaff && (
+              <NavLink to="/admin/reports" className={navClass}>
+                Reportes
+              </NavLink>
+      )}
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
           {isAuthenticated ? (
@@ -140,7 +146,7 @@ export default function Navbar() {
                 )}
               </>
             )}
-            {isAdmin && (
+            {isAdmin &&  (
               <>
                 <NavLink to="/admin" onClick={() => setOpen(false)} className={navClass} end>
                   Productos
@@ -151,7 +157,14 @@ export default function Navbar() {
                 <NavLink to="/admin/orders" onClick={() => setOpen(false)} className={navClass}>
                   Pedidos
                 </NavLink>
+              
               </>
+           )}
+
+            {isStaff && (
+                <NavLink to="/admin/reports" onClick={() => setOpen(false)} className={navClass}>
+                  Reportes
+                </NavLink>
             )}
             {isAuthenticated ? (
               <button

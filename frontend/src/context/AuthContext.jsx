@@ -68,6 +68,7 @@ export function AuthProvider({ children }) {
       user,
       isAuthenticated: Boolean(token && user),
       isAdmin: user?.role === "ADMIN",
+      isStaff: user?.role === "ADMIN" || user?.role === "EMPLOYEE",
       login,
       register,
       loginWithGoogle,

@@ -18,6 +18,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PurchasesPage from "./pages/PurchasesPage";
 import RegisterPage from "./pages/RegisterPage";
 import InactivityGuard from "./components/InactivityGuard";
+   import AdminReportsPage from "./pages/AdminReportsPage";
 
 function AppShell() {
   return (
@@ -75,6 +76,14 @@ function AppShell() {
             element={
               <ProtectedRoute requireAdmin>
                 <AdminOrdersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <ProtectedRoute requireStaff>
+                <AdminReportsPage />
               </ProtectedRoute>
             }
           />
