@@ -41,6 +41,7 @@ services:
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
       PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-631274127830-m72o0d2fns4hisvpt76fo0irhqbpf227.apps.googleusercontent.com}
     ports:
       - "${BACKEND_PORT:-8081}:8080"
     depends_on:
@@ -54,7 +55,7 @@ services:
         VITE_API_BASE_URL: /api
         VITE_INACTIVITY_TIMEOUT_MS: ${VITE_INACTIVITY_TIMEOUT_MS:-300000}
         VITE_INACTIVITY_WARNING_MS: ${VITE_INACTIVITY_WARNING_MS:-150000}
-        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID}
+        VITE_GOOGLE_CLIENT_ID: ${VITE_GOOGLE_CLIENT_ID:-631274127830-m72o0d2fns4hisvpt76fo0irhqbpf227.apps.googleusercontent.com}
     container_name: petshop-frontend
     restart: unless-stopped
     ports:
