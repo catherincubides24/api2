@@ -40,6 +40,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // NUEVO: debe ir antes del permitAll de /api/auth/** (gana la primera coincidencia)
+                        .requestMatchers(HttpMethod.POST, "/api/auth/logout", "/api/auth/heartbeat").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/error").permitAll()

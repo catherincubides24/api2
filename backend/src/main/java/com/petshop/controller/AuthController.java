@@ -2,10 +2,10 @@ package com.petshop.controller;
 
 import com.petshop.dto.auth.AuthRequest;
 import com.petshop.dto.auth.AuthResponse;
-import com.petshop.dto.auth.GoogleAuthRequest;
 import com.petshop.dto.auth.RegisterRequest;
 import com.petshop.service.AuthService;
 import jakarta.validation.Valid;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +31,15 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/google")
-    public ResponseEntity<AuthResponse> google(@Valid @RequestBody GoogleAuthRequest request) {
-        return ResponseEntity.ok(authService.loginWithGoogle(request));
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(Principal principal) {
+        authService.logout(principal.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/heartbeat")
+    public ResponseEntity<Void> heartbeat(Principal principal) {
+        authService.heartbeat(principal.getName());
+        return ResponseEntity.noContent().build();
     }
 }

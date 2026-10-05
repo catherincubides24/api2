@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
+    /** NUEVO: nombre del claim que lleva el identificador de la sesión activa. */
+    public static final String SESSION_CLAIM = "sid";
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
@@ -23,6 +26,11 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    /** NUEVO: lee el id de sesión (claim "sid") del token. */
+    public String extractSessionId(String token) {
+        return extractClaim(token, claims -> claims.get(SESSION_CLAIM, String.class));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {

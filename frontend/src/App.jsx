@@ -18,7 +18,8 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PurchasesPage from "./pages/PurchasesPage";
 import RegisterPage from "./pages/RegisterPage";
 import InactivityGuard from "./components/InactivityGuard";
-   import AdminReportsPage from "./pages/AdminReportsPage";
+import AdminReportsPage from "./pages/AdminReportsPage";
+import SessionNotice from "./components/SessionNotice";
 
 function AppShell() {
   return (
@@ -30,6 +31,7 @@ function AppShell() {
       </div>
 
       <Navbar />
+      <SessionNotice />
       <InactivityGuard />
 
       <main className="mx-auto w-full max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">

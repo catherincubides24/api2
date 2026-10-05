@@ -42,6 +42,8 @@ services:
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
       PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-631274127830-m72o0d2fns4hisvpt76fo0irhqbpf227.apps.googleusercontent.com}
+      SESSION_POLICY: ${SESSION_POLICY:-BLOCK}
+      SESSION_INACTIVITY_TIMEOUT: ${SESSION_INACTIVITY_TIMEOUT:-2m}
     ports:
       - "${BACKEND_PORT:-8081}:8080"
     depends_on:
@@ -63,6 +65,8 @@ services:
     depends_on:
       - backend
 
+  
 
 volumes:
   petshop_db_data:
+

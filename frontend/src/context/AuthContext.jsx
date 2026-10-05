@@ -1,10 +1,14 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useSessionHeartbeat } from "../hooks/useSessionHeartbeat";
+import { onSessionInvalid } from "../services/api";
 import { authService } from "../services/authService";
 
 const AuthContext = createContext(null);
 
 const TOKEN_KEY = "petshop_token";
 const USER_KEY = "petshop_user";
+const SESSION_REPLACED_MESSAGE =
+  "Tu sesión se cerró porque se inició sesión en otro navegador.";
 
 function getStoredUser() {
   const raw = localStorage.getItem(USER_KEY);
@@ -21,6 +25,25 @@ function getStoredUser() {
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState(getStoredUser);
+  const [sessionNotice, setSessionNotice] = useState("");
+
+  const clearSession = useCallback(() => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+  }, []);
+
+  useEffect(() => {
+    onSessionInvalid(() => {
+      clearSession();
+      setSessionNotice(SESSION_REPLACED_MESSAGE);
+    });
+    return () => onSessionInvalid(null);
+  }, [clearSession]);
+
+  const isAuthenticated = Boolean(token && user);
+  useSessionHeartbeat(isAuthenticated);
 
   const persistSession = (session) => {
     const nextUser = {
@@ -30,6 +53,7 @@ export function AuthProvider({ children }) {
       role: session.role,
     };
 
+    setSessionNotice("");
     setToken(session.token);
     setUser(nextUser);
 
@@ -49,32 +73,31 @@ export function AuthProvider({ children }) {
     return session;
   };
 
-  const loginWithGoogle = async (credential) => {
-    const session = await authService.googleLogin(credential);
-    persistSession(session);
-    return session;
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Si el servidor no responde igual se cierra la sesión local.
+    } finally {
+      clearSession();
+    }
   };
 
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
-  };
+  const dismissSessionNotice = () => setSessionNotice("");
 
   const value = useMemo(
     () => ({
       token,
       user,
-      isAuthenticated: Boolean(token && user),
+      isAuthenticated,
       isAdmin: user?.role === "ADMIN",
-      isStaff: user?.role === "ADMIN" || user?.role === "EMPLOYEE",
+      sessionNotice,
+      dismissSessionNotice,
       login,
       register,
-      loginWithGoogle,
       logout,
     }),
-    [token, user]
+    [token, user, sessionNotice]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

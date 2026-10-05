@@ -56,6 +56,16 @@ public class GlobalExceptionHandler {
                 null
         );
     }
+
+    @ExceptionHandler(SessionConflictException.class)
+public ResponseEntity<ApiError> handleSessionConflict(SessionConflictException ex, HttpServletRequest request) {
+    return buildError(
+            HttpStatus.CONFLICT,
+            ex.getMessage(),
+            request.getRequestURI(),
+            Map.of("code", SessionErrorCodes.SESSION_ACTIVE_ELSEWHERE)
+    );
+}
  
     private ResponseEntity<ApiError> buildError(
             HttpStatus status,
