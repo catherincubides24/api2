@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import SectionTitle from "../components/SectionTitle";
+import { useAuth } from "../context/AuthContext";
 import { productService } from "../services/productService";
 import { formatCurrency } from "../utils/formatCurrency";
 
@@ -17,6 +18,7 @@ const inputClass =
   "rounded-xl border border-ink/15 px-4 py-2.5 text-ink outline-none ring-coral/30 transition focus:ring dark:border-white/15 dark:bg-slate-900 dark:text-cream";
 
 export default function AdminPage() {
+  const { isAdmin } = useAuth();
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
@@ -255,12 +257,14 @@ export default function AdminPage() {
                   >
                     Editar
                   </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="rounded-xl border border-coral/30 px-3 py-2 text-xs font-semibold text-coral"
-                  >
-                    Eliminar
-                  </button>
+                  {isAdmin && (
+                    <button
+                      onClick={() => handleDelete(product.id)}
+                      className="rounded-xl border border-coral/30 px-3 py-2 text-xs font-semibold text-coral"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </div>
               </article>
             ))}

@@ -207,9 +207,10 @@ public class OrderService {
             throw new ForbiddenException("No autenticado");
         }
 
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
-        if (isAdmin) {
+        boolean isStaff = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
+                        || authority.getAuthority().equals("ROLE_EMPLOYEE"));
+        if (isStaff) {
             return;
         }
 

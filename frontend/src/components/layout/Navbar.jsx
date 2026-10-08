@@ -1,4 +1,4 @@
-import { Menu, PawPrint, ReceiptText, ShoppingBag, UserCircle, X } from "lucide-react";
+import { Database, Menu, PawPrint, ReceiptText, ShoppingBag, UserCircle, X } from "lucide-react";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -33,7 +33,28 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">
-          {!isAdmin && (
+          {isStaff ? (
+            <>
+              <NavLink to="/admin" className={navClass} end>
+                Productos
+              </NavLink>
+              <NavLink to="/admin/sales" className={navClass}>
+                Ventas
+              </NavLink>
+              <NavLink to="/admin/orders" className={navClass}>
+                Pedidos
+              </NavLink>
+              <NavLink to="/admin/reports" className={navClass}>
+                Reportes
+              </NavLink>
+              <NavLink to="/backup" className={navClass}>
+                <span className="inline-flex items-center gap-1.5">
+                  <Database size={16} />
+                  Copia de Seguridad
+                </span>
+              </NavLink>
+            </>
+          ) : (
             <>
               <NavLink to="/" className={navClass}>
                 Productos
@@ -50,37 +71,24 @@ export default function Navbar() {
                 </span>
               </NavLink>
               {isAuthenticated && (
-                <NavLink to="/purchases" className={navClass}>
-                  <span className="inline-flex items-center gap-2">
-                    <ReceiptText size={16} />
-                    Mis compras
-                  </span>
-                </NavLink>
+                <>
+                  <NavLink to="/purchases" className={navClass}>
+                    <span className="inline-flex items-center gap-2">
+                      <ReceiptText size={16} />
+                      Mis compras
+                    </span>
+                  </NavLink>
+                  <NavLink to="/backup" className={navClass}>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Database size={16} />
+                      Copia de Seguridad
+                    </span>
+                  </NavLink>
+                </>
               )}
             </>
           )}
-
-          {isAdmin && (
-            <>
-              <NavLink to="/admin" className={navClass} end>
-                Productos
-              </NavLink>
-              <NavLink to="/admin/sales" className={navClass}>
-                Ventas
-              </NavLink>
-              <NavLink to="/admin/orders" className={navClass}>
-                Pedidos
-              </NavLink>
-             
-            </>
-          )}
         </nav>
-
-          {isStaff && (
-              <NavLink to="/admin/reports" className={navClass}>
-                Reportes
-              </NavLink>
-      )}
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
           {isAuthenticated ? (
@@ -127,26 +135,7 @@ export default function Navbar() {
         <div className="border-t border-ink/10 bg-cream px-4 py-4 md:hidden dark:border-white/10 dark:bg-slate-900">
           <div className="flex flex-col gap-2">
             <ThemeToggle className="self-start" />
-            {!isAdmin && (
-              <>
-                <NavLink to="/" onClick={() => setOpen(false)} className={navClass}>
-                  Productos
-                </NavLink>
-                <NavLink to="/cart" onClick={() => setOpen(false)} className={navClass}>
-                  Carrito ({itemCount})
-                </NavLink>
-                {isAuthenticated && (
-                  <NavLink
-                    to="/purchases"
-                    onClick={() => setOpen(false)}
-                    className={navClass}
-                  >
-                    Mis compras
-                  </NavLink>
-                )}
-              </>
-            )}
-            {isAdmin &&  (
+            {isStaff ? (
               <>
                 <NavLink to="/admin" onClick={() => setOpen(false)} className={navClass} end>
                   Productos
@@ -157,14 +146,46 @@ export default function Navbar() {
                 <NavLink to="/admin/orders" onClick={() => setOpen(false)} className={navClass}>
                   Pedidos
                 </NavLink>
-              
-              </>
-           )}
-
-            {isStaff && (
                 <NavLink to="/admin/reports" onClick={() => setOpen(false)} className={navClass}>
                   Reportes
                 </NavLink>
+                <NavLink to="/backup" onClick={() => setOpen(false)} className={navClass}>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Database size={16} />
+                    Copia de Seguridad
+                  </span>
+                </NavLink>
+              </>
+            ) : (
+              <>
+                <NavLink to="/" onClick={() => setOpen(false)} className={navClass}>
+                  Productos
+                </NavLink>
+                <NavLink to="/cart" onClick={() => setOpen(false)} className={navClass}>
+                  Carrito ({itemCount})
+                </NavLink>
+                {isAuthenticated && (
+                  <>
+                    <NavLink
+                      to="/purchases"
+                      onClick={() => setOpen(false)}
+                      className={navClass}
+                    >
+                      Mis compras
+                    </NavLink>
+                    <NavLink
+                      to="/backup"
+                      onClick={() => setOpen(false)}
+                      className={navClass}
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        <Database size={16} />
+                        Copia de Seguridad
+                      </span>
+                    </NavLink>
+                  </>
+                )}
+              </>
             )}
             {isAuthenticated ? (
               <button

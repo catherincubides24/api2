@@ -31,7 +31,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<PageResponse<OrderResponse>> getAllOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -40,7 +40,7 @@ public class OrderController {
     }
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'CUSTOMER')")
     public ResponseEntity<PageResponse<OrderResponse>> getOrdersByUserId(
             @PathVariable Long userId,
             @RequestParam(defaultValue = "0") int page,
@@ -50,31 +50,31 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'CUSTOMER')")
     public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
     @GetMapping("/{id}/ticket")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'CUSTOMER')")
     public ResponseEntity<TicketResponse> getTicket(@PathVariable Long id) {
         return ResponseEntity.ok(orderService.getTicket(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE', 'CUSTOMER')")
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(request));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<OrderResponse> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderRequest request) {
         return ResponseEntity.ok(orderService.updateOrder(id, request));
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Long id,
             @Valid @RequestBody OrderStatusUpdateRequest request
@@ -82,9 +82,9 @@ public class OrderController {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, request));
     }
 
-    /** Usado por el modulo de ventas del administrador para confirmar pagos en efectivo/transferencia. */
+    /** Usado por el modulo de ventas del administrador y trabajador para confirmar pagos en efectivo/transferencia. */
     @PatchMapping("/{id}/payment")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
     public ResponseEntity<OrderResponse> updatePayment(
             @PathVariable Long id,
             @Valid @RequestBody PaymentUpdateRequest request

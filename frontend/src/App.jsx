@@ -19,6 +19,7 @@ import PurchasesPage from "./pages/PurchasesPage";
 import RegisterPage from "./pages/RegisterPage";
 import InactivityGuard from "./components/InactivityGuard";
 import AdminReportsPage from "./pages/AdminReportsPage";
+import BackupPage from "./pages/BackupPage";
 import SessionNotice from "./components/SessionNotice";
 
 function AppShell() {
@@ -56,11 +57,11 @@ function AppShell() {
             }
           />
 
-          {/* Módulos de administración */}
+          {/* Módulos de administración y gestión para Staff (ADMIN y WORKER) */}
           <Route
             path="/admin"
             element={
-              <ProtectedRoute requireAdmin>
+              <ProtectedRoute requireStaff>
                 <AdminPage />
               </ProtectedRoute>
             }
@@ -68,7 +69,7 @@ function AppShell() {
           <Route
             path="/admin/sales"
             element={
-              <ProtectedRoute requireAdmin>
+              <ProtectedRoute requireStaff>
                 <AdminSalesPage />
               </ProtectedRoute>
             }
@@ -76,7 +77,7 @@ function AppShell() {
           <Route
             path="/admin/orders"
             element={
-              <ProtectedRoute requireAdmin>
+              <ProtectedRoute requireStaff>
                 <AdminOrdersPage />
               </ProtectedRoute>
             }
@@ -86,6 +87,16 @@ function AppShell() {
             element={
               <ProtectedRoute requireStaff>
                 <AdminReportsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Backup y restauración de BD — Accesible para Administrador, Trabajador y Cliente */}
+          <Route
+            path="/backup"
+            element={
+              <ProtectedRoute>
+                <BackupPage />
               </ProtectedRoute>
             }
           />
