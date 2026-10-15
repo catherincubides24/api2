@@ -21,6 +21,7 @@ import InactivityGuard from "./components/InactivityGuard";
 import AdminReportsPage from "./pages/AdminReportsPage";
 import BackupPage from "./pages/BackupPage";
 import SessionNotice from "./components/SessionNotice";
+import AdminLogsPage from "./pages/AdminLogsPage";
 
 function AppShell() {
   return (
@@ -105,6 +106,14 @@ function AppShell() {
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/payment/cancel" element={<PaymentCancelPage />} />
 
+          <Route
+          path="/admin/logs"
+          element={
+          <ProtectedRoute requireAdmin>
+          <AdminLogsPage />
+          </ProtectedRoute>
+  }
+/>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

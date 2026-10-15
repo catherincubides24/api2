@@ -32,6 +32,7 @@ export default function Navbar() {
           </div>
         </Link>
 
+        {/* ───────── Menú de escritorio ───────── */}
         <nav className="hidden items-center gap-2 md:flex">
           {isStaff ? (
             <>
@@ -53,6 +54,11 @@ export default function Navbar() {
                   Copia de Seguridad
                 </span>
               </NavLink>
+              {isAdmin && (
+                <NavLink to="/admin/logs" className={navClass}>
+                  Logs
+                </NavLink>
+              )}
             </>
           ) : (
             <>
@@ -89,6 +95,7 @@ export default function Navbar() {
             </>
           )}
         </nav>
+
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
           {isAuthenticated ? (
@@ -131,6 +138,7 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* ───────── Menú móvil ───────── */}
       {open && (
         <div className="border-t border-ink/10 bg-cream px-4 py-4 md:hidden dark:border-white/10 dark:bg-slate-900">
           <div className="flex flex-col gap-2">
@@ -155,6 +163,11 @@ export default function Navbar() {
                     Copia de Seguridad
                   </span>
                 </NavLink>
+                {isAdmin && (
+                  <NavLink to="/admin/logs" onClick={() => setOpen(false)} className={navClass}>
+                    Logs
+                  </NavLink>
+                )}
               </>
             ) : (
               <>
