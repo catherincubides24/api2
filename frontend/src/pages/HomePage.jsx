@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import SectionTitle from "../components/SectionTitle";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { productService } from "../services/productService";
 
 export default function HomePage() {
   const { addToCart } = useCart();
+  const { t, tCategory, tProductName, tProductDesc } = useLanguage();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,7 +25,7 @@ export default function HomePage() {
       } catch (err) {
         setError(
           err.response?.data?.message ||
-            "No pudimos cargar los productos por ahora."
+            t("home.loadError")
         );
       } finally {
         setLoading(false);
@@ -31,7 +33,7 @@ export default function HomePage() {
     };
 
     fetchProducts();
-  }, []);
+  }, [t]);
 
   const categories = useMemo(() => {
     const set = new Set(
@@ -42,21 +44,25 @@ export default function HomePage() {
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
+      const name = tProductName(product.name);
+      const desc = tProductDesc(product.name, product.description);
       const bySearch =
         product.name.toLowerCase().includes(search.toLowerCase()) ||
+        name.toLowerCase().includes(search.toLowerCase()) ||
         (product.description || "")
           .toLowerCase()
-          .includes(search.toLowerCase());
+          .includes(search.toLowerCase()) ||
+        desc.toLowerCase().includes(search.toLowerCase());
       const byCategory =
         selectedCategory === "Todas" || product.category === selectedCategory;
 
       return bySearch && byCategory;
     });
-  }, [products, search, selectedCategory]);
+  }, [products, search, selectedCategory, tProductName, tProductDesc]);
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    setFlash(`${product.name} agregado al carrito`);
+    setFlash(t("home.addedToCart", { name: tProductName(product.name) }));
     setTimeout(() => setFlash(""), 1800);
   };
 
@@ -69,31 +75,29 @@ export default function HomePage() {
         <div className="relative grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="space-y-5">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-peach">
-              Tienda online para mascotas
+              {t("home.tagline")}
             </p>
             <h1 className="font-display text-4xl leading-tight sm:text-5xl">
-              Todo para tu mascota en un solo lugar.
+              {t("home.heroTitle")}
             </h1>
             <p className="max-w-xl text-cream/85">
-              Descubre alimentos, accesorios y productos de cuidado diario con
-              precios claros, compra segura y seguimiento de pedidos en tiempo
-              real.
+              {t("home.heroDescription")}
             </p>
             <a
               href="#catalogo"
               className="inline-flex rounded-full bg-coral px-6 py-3 text-sm font-semibold text-white transition hover:bg-coral/90"
             >
-              Explorar catálogo
+              {t("home.exploreCatalog")}
             </a>
           </div>
 
           <div className="rounded-3xl border border-white/15 bg-white/10 p-6 backdrop-blur">
-            <p className="text-sm text-cream/90">¿Por qué comprar aquí?</p>
+            <p className="text-sm text-cream/90">{t("home.whyBuyHere")}</p>
             <ul className="mt-3 space-y-2 text-sm text-cream/80">
-              <li>Catálogo actualizado para perros, gatos y más</li>
-              <li>Compra en minutos con carrito intuitivo</li>
-              <li>Seguimiento del estado de tu pedido</li>
-              <li>Atención enfocada en bienestar animal</li>
+              <li>{t("home.reason1")}</li>
+              <li>{t("home.reason2")}</li>
+              <li>{t("home.reason3")}</li>
+              <li>{t("home.reason4")}</li>
             </ul>
           </div>
         </div>
@@ -101,9 +105,9 @@ export default function HomePage() {
 
       <section id="catalogo" className="space-y-6">
         <SectionTitle
-          eyebrow="Catálogo"
-          title="Productos para tu mascota"
-          description="Filtra por categoría, busca por nombre y arma tu carrito en segundos."
+          eyebrow={t("home.catalogEyebrow")}
+          title={t("home.catalogTitle")}
+          description={t("home.catalogDescription")}
         />
 
         <div className="grid gap-3 rounded-2xl bg-white/80 p-4 shadow-soft md:grid-cols-[1fr_auto] md:items-center">
@@ -111,7 +115,7 @@ export default function HomePage() {
             type="text"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar productos..."
+            placeholder={t("home.searchPlaceholder")}
             className="w-full rounded-xl border border-ink/15 bg-white px-4 py-2 outline-none ring-coral/30 transition focus:ring"
           />
 
@@ -127,7 +131,7 @@ export default function HomePage() {
                     : "bg-sand text-ink hover:bg-peach",
                 ].join(" ")}
               >
-                {category}
+                {category === "Todas" ? t("categories.Todas") : tCategory(category)}
               </button>
             ))}
           </div>
@@ -158,7 +162,7 @@ export default function HomePage() {
 
         {!loading && !error && filteredProducts.length === 0 && (
           <div className="rounded-2xl bg-white/80 px-4 py-8 text-center text-ink/70 shadow-soft">
-            No encontramos productos con esos filtros.
+            {t("home.noProducts")}
           </div>
         )}
 

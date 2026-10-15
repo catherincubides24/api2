@@ -2,19 +2,12 @@ import { useEffect, useState } from "react";
 import LogDetails from "../components/LogDetails";
 import Pagination from "../components/Pagination";
 import SectionTitle from "../components/SectionTitle";
+import { useLanguage } from "../context/LanguageContext";
 import { logService } from "../services/logService";
-import { actionLabels, actionStyles, describeLog } from "../utils/logLabels";
+import { actionLabel, actionStyles, describeLog } from "../utils/logLabels";
 
-function formatDateTime(value) {
-  return new Date(value).toLocaleString("es-CO", {
-    dateStyle: "medium",
-    timeStyle: "medium",
-    timeZone: "America/Bogota",
-  });
-}
-
-/** Historial de auditoría: solo lectura, visible únicamente para el personal (admin y trabajador). */
 export default function AdminLogsPage() {
+  const { t, formatDate } = useLanguage();
   const [pageData, setPageData] = useState({ content: [], page: 0, totalPages: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,7 +19,7 @@ export default function AdminLogsPage() {
       setError("");
       setPageData(await logService.getLogs(page, pageSize));
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudieron cargar los logs.");
+      setError(err.response?.data?.message || t("adminLogs.loadError"));
     } finally {
       setLoading(false);
     }
@@ -40,9 +33,9 @@ export default function AdminLogsPage() {
     <div className="space-y-6">
       <section className="rounded-3xl bg-white/85 p-6 shadow-card">
         <SectionTitle
-          eyebrow="Administración"
-          title="Logs del sistema"
-          description="Inicios y cierres de sesión, y todo lo que se crea, modifica o elimina."
+          eyebrow={t("adminLogs.eyebrow")}
+          title={t("adminLogs.title")}
+          description={t("adminLogs.description")}
         />
       </section>
 
@@ -54,25 +47,25 @@ export default function AdminLogsPage() {
 
       <section className="overflow-x-auto rounded-3xl bg-white/85 p-4 shadow-card">
         {loading ? (
-          <p className="p-4 text-sm text-ink/60">Cargando logs...</p>
+          <p className="p-4 text-sm text-ink/60">{t("adminLogs.loading")}</p>
         ) : pageData.content.length === 0 ? (
-          <p className="p-4 text-sm text-ink/60">Aún no hay registros.</p>
+          <p className="p-4 text-sm text-ink/60">{t("adminLogs.empty")}</p>
         ) : (
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
               <tr className="border-b border-ink/10 text-xs uppercase tracking-wide text-ink/50">
-                <th className="px-3 py-2">Fecha</th>
-                <th className="px-3 py-2">Acción</th>
-                <th className="px-3 py-2">Qué pasó</th>
-                <th className="px-3 py-2">Usuario</th>
-                <th className="px-3 py-2">Detalle</th>
+                <th className="px-3 py-2">{t("adminLogs.table.date")}</th>
+                <th className="px-3 py-2">{t("adminLogs.table.action")}</th>
+                <th className="px-3 py-2">{t("adminLogs.table.whatHappened")}</th>
+                <th className="px-3 py-2">{t("adminLogs.table.user")}</th>
+                <th className="px-3 py-2">{t("adminLogs.table.detail")}</th>
               </tr>
             </thead>
             <tbody>
               {pageData.content.map((log) => (
                 <tr key={log.id} className="border-b border-ink/5 align-top last:border-0">
                   <td className="whitespace-nowrap px-3 py-2 text-ink/80">
-                    {formatDateTime(log.createdAt)}
+                    {formatDate(log.createdAt, { dateStyle: "medium", timeStyle: "medium" })}
                   </td>
                   <td className="px-3 py-2">
                     <span
@@ -81,10 +74,10 @@ export default function AdminLogsPage() {
                         actionStyles[log.action] || "bg-slate-100 text-slate-700",
                       ].join(" ")}
                     >
-                      {actionLabels[log.action] || log.action}
+                      {actionLabel(log.action, t)}
                     </span>
                   </td>
-                  <td className="px-3 py-2 font-semibold text-ink">{describeLog(log)}</td>
+                  <td className="px-3 py-2 font-semibold text-ink">{describeLog(log, t)}</td>
                   <td className="px-3 py-2 text-ink/80">{log.actor}</td>
                   <td className="px-3 py-2">
                     <LogDetails details={log.details} />

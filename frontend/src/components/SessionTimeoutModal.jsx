@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 function formatCountdown(ms) {
   const totalSeconds = Math.max(Math.ceil(ms / 1000), 0);
@@ -8,6 +9,7 @@ function formatCountdown(ms) {
 }
 
 export default function SessionTimeoutModal({ remainingMs, onConfirm, onLogout }) {
+  const { t } = useLanguage();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ export default function SessionTimeoutModal({ remainingMs, onConfirm, onLogout }
     try {
       await onConfirm(password);
     } catch (err) {
-      setError(err.response?.data?.message || "Contraseña incorrecta");
+      setError(err.response?.data?.message || t("session.passwordError"));
       setPassword("");
     } finally {
       setLoading(false);
@@ -38,10 +40,10 @@ export default function SessionTimeoutModal({ remainingMs, onConfirm, onLogout }
       >
         <div className="space-y-1 text-center">
           <h2 className="font-display text-2xl text-ink dark:text-cream">
-            ¿Sigues ahí?
+            {t("session.areYouStillThere")}
           </h2>
           <p className="text-sm text-ink/70 dark:text-cream/70">
-            Por inactividad, tu sesión se cerrará en
+            {t("session.inactivityWarning")}
           </p>
           <p className="text-3xl font-extrabold text-coral">
             {formatCountdown(remainingMs)}
@@ -54,7 +56,7 @@ export default function SessionTimeoutModal({ remainingMs, onConfirm, onLogout }
           autoFocus
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="Escribe tu contraseña para continuar"
+          placeholder={t("session.passwordPlaceholder")}
           className="w-full rounded-xl border border-ink/15 px-4 py-2.5 text-ink outline-none ring-coral/30 transition focus:ring dark:border-white/15 dark:bg-slate-900 dark:text-cream"
         />
 
@@ -69,14 +71,14 @@ export default function SessionTimeoutModal({ remainingMs, onConfirm, onLogout }
           disabled={loading}
           className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60 dark:bg-cream dark:text-ink"
         >
-          {loading ? "Verificando..." : "Continuar sesión"}
+          {loading ? t("session.verifying") : t("session.continueSession")}
         </button>
         <button
           type="button"
           onClick={onLogout}
           className="w-full rounded-xl border border-ink/20 px-4 py-2.5 text-sm font-semibold text-ink dark:border-white/20 dark:text-cream"
         >
-          Cerrar sesión
+          {t("session.logout")}
         </button>
       </form>
     </div>

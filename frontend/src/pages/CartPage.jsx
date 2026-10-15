@@ -4,30 +4,29 @@ import { Link, useNavigate } from "react-router-dom";
 import SectionTitle from "../components/SectionTitle";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { useLanguage } from "../context/LanguageContext";
 import { orderService } from "../services/orderService";
 import { paymentService } from "../services/paymentService";
 import { formatCurrency } from "../utils/formatCurrency";
 
-const paymentMethods = [
-  { value: "CASH", label: "Efectivo", icon: Banknote, hint: "Paga al recibir tu pedido." },
-  { value: "TRANSFER", label: "Transferencia", icon: Landmark, hint: "Te compartimos los datos bancarios." },
-  { value: "PAYPAL", label: "PayPal", icon: CreditCard, hint: "Pago en línea seguro." },
-];
-
 export default function CartPage() {
   const { items, total, updateQuantity, removeFromCart, clearCart } = useCart();
   const { user } = useAuth();
+  const { t, tProductName } = useLanguage();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
-  // Paso 1: "Finalizar compra" crea el pedido en PENDING.
-  // Paso 2: según el método elegido, se confirma directamente (efectivo / transferencia)
-  // o se redirige a PayPal (se conserva exactamente el flujo externo existente).
+  const paymentMethods = [
+    { value: "CASH", label: t("cart.paymentMethods.CASH.label"), icon: Banknote, hint: t("cart.paymentMethods.CASH.hint") },
+    { value: "TRANSFER", label: t("cart.paymentMethods.TRANSFER.label"), icon: Landmark, hint: t("cart.paymentMethods.TRANSFER.hint") },
+    { value: "PAYPAL", label: t("cart.paymentMethods.PAYPAL.label"), icon: CreditCard, hint: t("cart.paymentMethods.PAYPAL.hint") },
+  ];
+
   const handleSelectPayment = async (method) => {
     if (!user) {
-      setFeedback("Debes iniciar sesión para continuar.");
+      setFeedback(t("cart.loginRequired"));
       return;
     }
 
@@ -52,13 +51,11 @@ export default function CartPage() {
         return;
       }
 
-      // Efectivo / Transferencia: el pedido queda pendiente hasta que el
-      // administrador confirme el pago desde el módulo de pedidos/ventas.
       clearCart();
       navigate("/purchases");
     } catch (err) {
       setFeedback(
-        err.response?.data?.message || "No se pudo iniciar la compra. Inténtalo de nuevo."
+        err.response?.data?.message || t("cart.startOrderError")
       );
       setIsSubmitting(false);
     }
@@ -67,15 +64,15 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-3xl rounded-3xl bg-white/80 p-8 text-center shadow-soft">
-        <h1 className="font-display text-4xl text-ink">Tu carrito está vacío</h1>
+        <h1 className="font-display text-4xl text-ink">{t("cart.emptyTitle")}</h1>
         <p className="mt-3 text-ink/70">
-          Explora productos y agrega lo que necesites para tu mascota.
+          {t("cart.emptySubtitle")}
         </p>
         <Link
           to="/"
           className="mt-6 inline-block rounded-full bg-ink px-5 py-3 text-sm font-semibold text-cream"
         >
-          Volver al catálogo
+          {t("cart.backToCatalog")}
         </Link>
       </div>
     );
@@ -85,9 +82,9 @@ export default function CartPage() {
     <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
       <section className="space-y-4 rounded-3xl bg-white/85 p-6 shadow-card">
         <SectionTitle
-          eyebrow="Carrito"
-          title="Resumen de tu pedido"
-          description="Ajusta cantidades antes de confirmar la compra."
+          eyebrow={t("cart.eyebrow")}
+          title={t("cart.title")}
+          description={t("cart.description")}
         />
 
         <div className="space-y-4">
@@ -98,15 +95,15 @@ export default function CartPage() {
             >
               <img
                 src={item.imageUrl}
-                alt={item.name}
+                alt={tProductName(item.name)}
                 className="h-20 w-full rounded-xl object-cover sm:w-20"
               />
 
               <div>
-                <h3 className="font-semibold text-ink">{item.name}</h3>
-                <p className="text-sm text-ink/60">{formatCurrency(item.price)} c/u</p>
+                <h3 className="font-semibold text-ink">{tProductName(item.name)}</h3>
+                <p className="text-sm text-ink/60">{formatCurrency(item.price)} {t("cart.each")}</p>
                 <p className="text-sm font-semibold text-coral">
-                  Subtotal: {formatCurrency(Number(item.price) * item.quantity)}
+                  {t("cart.subtotal")}: {formatCurrency(Number(item.price) * item.quantity)}
                 </p>
               </div>
 
@@ -114,7 +111,7 @@ export default function CartPage() {
                 <button
                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
                   className="rounded-full border border-ink/20 p-2 text-ink"
-                  aria-label="Reducir cantidad"
+                  aria-label={t("cart.reduceQuantity")}
                 >
                   <Minus size={16} />
                 </button>
@@ -124,14 +121,14 @@ export default function CartPage() {
                 <button
                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                   className="rounded-full border border-ink/20 p-2 text-ink"
-                  aria-label="Aumentar cantidad"
+                  aria-label={t("cart.increaseQuantity")}
                 >
                   <Plus size={16} />
                 </button>
                 <button
                   onClick={() => removeFromCart(item.id)}
                   className="rounded-full border border-coral/30 p-2 text-coral"
-                  aria-label="Eliminar producto"
+                  aria-label={t("cart.removeProduct")}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -142,10 +139,10 @@ export default function CartPage() {
       </section>
 
       <aside className="h-fit space-y-4 rounded-3xl bg-gradient-to-br from-ink via-dusk to-mint p-6 text-cream shadow-card">
-        <h2 className="font-display text-3xl">Total</h2>
+        <h2 className="font-display text-3xl">{t("cart.total")}</h2>
         <p className="text-4xl font-extrabold">{formatCurrency(total)}</p>
         <p className="text-sm text-cream/80">
-          Cliente: <span className="font-semibold">{user?.fullName}</span>
+          {t("cart.customer")}: <span className="font-semibold">{user?.fullName}</span>
         </p>
 
         {!showPaymentOptions ? (
@@ -154,11 +151,11 @@ export default function CartPage() {
             disabled={!user}
             className="w-full rounded-xl bg-coral px-4 py-3 text-sm font-semibold text-white transition hover:bg-coral/90 disabled:opacity-60"
           >
-            Finalizar compra
+            {t("cart.checkout")}
           </button>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-cream/90">Elige tu método de pago</p>
+            <p className="text-sm font-semibold text-cream/90">{t("cart.choosePayment")}</p>
             {paymentMethods.map(({ value, label, icon: Icon, hint }) => (
               <button
                 key={value}
@@ -178,7 +175,7 @@ export default function CartPage() {
               disabled={isSubmitting}
               className="w-full rounded-xl border border-white/30 px-4 py-2 text-xs font-semibold text-cream/80"
             >
-              Volver
+              {t("cart.back")}
             </button>
           </div>
         )}
@@ -191,7 +188,7 @@ export default function CartPage() {
           onClick={clearCart}
           className="w-full rounded-xl border border-white/35 px-4 py-3 text-sm font-semibold text-cream/90 transition hover:bg-white/10"
         >
-          Vaciar carrito
+          {t("cart.clearCart")}
         </button>
       </aside>
     </div>

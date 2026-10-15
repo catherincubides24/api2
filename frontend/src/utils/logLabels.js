@@ -1,12 +1,3 @@
-export const actionLabels = {
-  CREATE: "Creación",
-  UPDATE: "Modificación",
-  DELETE: "Eliminación",
-  LOGIN_SUCCESS: "Inicio de sesión",
-  LOGIN_FAILURE: "Login fallido",
-  LOGOUT: "Cierre de sesión",
-};
-
 export const actionStyles = {
   CREATE: "bg-emerald-100 text-emerald-700",
   UPDATE: "bg-sky-100 text-sky-700",
@@ -14,36 +5,6 @@ export const actionStyles = {
   LOGIN_SUCCESS: "bg-slate-100 text-slate-700",
   LOGIN_FAILURE: "bg-amber-100 text-amber-700",
   LOGOUT: "bg-slate-100 text-slate-700",
-};
-
-const entityLabels = {
-  Product: "producto",
-  User: "usuario",
-  PetOrder: "pedido",
-  OrderItem: "ítem de pedido",
-};
-
-export const fieldLabels = {
-  fullName: "Nombre",
-  email: "Email",
-  role: "Rol",
-  name: "Nombre",
-  description: "Descripción",
-  price: "Precio",
-  stock: "Stock",
-  imageUrl: "Imagen",
-  category: "Categoría",
-  active: "Activo",
-  status: "Estado",
-  paymentMethod: "Método de pago",
-  ticketNumber: "Ticket",
-  totalAmount: "Total",
-  user: "Cliente",
-  order: "Pedido",
-  product: "Producto",
-  quantity: "Cantidad",
-  unitPrice: "Precio unitario",
-  createdAt: "Creado",
 };
 
 const NAME_KEYS = ["name", "fullName", "ticketNumber", "product"];
@@ -57,13 +18,23 @@ export function parseDetails(details) {
   }
 }
 
-export function fieldLabel(field) {
-  return fieldLabels[field] || field;
+/** Retorna la etiqueta de acción traducida usando t() del LanguageContext */
+export function actionLabel(action, t) {
+  const translated = t(`logLabels.actions.${action}`);
+  // Si t() devuelve la clave (fallback cuando no existe), usa la acción cruda
+  return translated !== `logLabels.actions.${action}` ? translated : action;
 }
 
-export function formatValue(value) {
-  if (value === true) return "Sí";
-  if (value === false) return "No";
+/** Retorna la etiqueta de un campo traducida */
+export function fieldLabel(field, t) {
+  const translated = t(`logLabels.fields.${field}`);
+  return translated !== `logLabels.fields.${field}` ? translated : field;
+}
+
+/** Formatea un valor booleano/nulo con soporte i18n */
+export function formatValue(value, t) {
+  if (value === true) return t("logLabels.boolTrue");
+  if (value === false) return t("logLabels.boolFalse");
   return value === null || value === undefined || value === "" ? "—" : String(value);
 }
 
@@ -72,25 +43,49 @@ function targetOf(log, parsed) {
   return key ? `«${parsed[key]}» (#${log.entityId})` : `#${log.entityId}`;
 }
 
-/** Frase corta que explica qué pasó exactamente. */
-export function describeLog(log) {
+/**
+ * Aplica reemplazos de tokens {key} en un string de plantilla.
+ * Se usa para las claves de `describe` que tienen {entity}, {target}, {id}, {fields}.
+ */
+function applyReplacements(template, replacements) {
+  return Object.entries(replacements).reduce(
+    (str, [token, value]) => str.replace(new RegExp(`\\{${token}\\}`, "g"), value),
+    template
+  );
+}
+
+/** Frase corta que explica qué pasó exactamente, usando t() para i18n. */
+export function describeLog(log, t) {
   const parsed = parseDetails(log.details);
-  const entity = entityLabels[log.entityName] || log.entityName;
+  const entityKey = t(`logLabels.entities.${log.entityName}`);
+  const entity =
+    entityKey !== `logLabels.entities.${log.entityName}` ? entityKey : log.entityName;
 
   switch (log.action) {
     case "LOGIN_SUCCESS":
-      return "Inició sesión";
+      return t("logLabels.describe.loginSuccess");
     case "LOGIN_FAILURE":
-      return "Intento de inicio de sesión fallido";
+      return t("logLabels.describe.loginFailure");
     case "LOGOUT":
-      return "Cerró sesión";
+      return t("logLabels.describe.logout");
     case "CREATE":
-      return `Creó ${entity} ${targetOf(log, parsed)}`;
+      return applyReplacements(t("logLabels.describe.created"), {
+        entity,
+        target: targetOf(log, parsed),
+      });
     case "DELETE":
-      return `Eliminó ${entity} ${targetOf(log, parsed)}`;
+      return applyReplacements(t("logLabels.describe.deleted"), {
+        entity,
+        target: targetOf(log, parsed),
+      });
     case "UPDATE": {
-      const fields = parsed ? Object.keys(parsed).map(fieldLabel).join(", ") : "";
-      return `Modificó ${entity} #${log.entityId}${fields ? `: ${fields}` : ""}`;
+      const fields = parsed ? Object.keys(parsed).map((f) => fieldLabel(f, t)).join(", ") : "";
+      const templateKey = fields ? "logLabels.describe.updatedFields" : "logLabels.describe.updated";
+      return applyReplacements(t(templateKey), {
+        entity,
+        id: log.entityId,
+        fields,
+      });
     }
     default:
       return log.action;

@@ -1,7 +1,9 @@
 import { X } from "lucide-react";
+import { useLanguage } from "../context/LanguageContext";
 import { privacyPolicySections, PRIVACY_POLICY_UPDATED_AT } from "../data/privacyPolicyContent";
 
 export default function PrivacyPolicyModal({ open, onClose }) {
+  const { t } = useLanguage();
   if (!open) return null;
 
   return (
@@ -15,19 +17,19 @@ export default function PrivacyPolicyModal({ open, onClose }) {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-2xl text-ink">
-            Política de Tratamiento de Datos Personales
+            {t("privacyPolicy.title")}
           </h2>
           <button
             onClick={onClose}
             className="rounded-full p-2 text-ink/60 hover:bg-sand"
-            aria-label="Cerrar"
+            aria-label={t("privacyPolicy.close")}
           >
             <X size={20} />
           </button>
         </div>
 
         <p className="mb-4 text-xs text-ink/50">
-          Última actualización: {PRIVACY_POLICY_UPDATED_AT}
+          {t("privacyPolicy.updatedAt", { date: PRIVACY_POLICY_UPDATED_AT })}
         </p>
 
         <div className="space-y-4">
@@ -43,7 +45,7 @@ export default function PrivacyPolicyModal({ open, onClose }) {
           onClick={onClose}
           className="mt-6 w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream"
         >
-          Cerrar
+          {t("privacyPolicy.close")}
         </button>
       </div>
     </div>

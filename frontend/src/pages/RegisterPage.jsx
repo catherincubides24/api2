@@ -2,11 +2,13 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import { PRIVACY_POLICY_VERSION } from "../data/privacyPolicyContent";
 
 export default function RegisterPage() {
   const { register, loginWithGoogle } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -25,12 +27,12 @@ export default function RegisterPage() {
     setError("");
 
     if (form.password !== form.confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      setError(t("register.passwordMismatch"));
       return;
     }
 
     if (!acceptedPolicy) {
-      setError("Debes aceptar la política de tratamiento de datos para continuar");
+      setError(t("register.policyRequired"));
       return;
     }
 
@@ -47,7 +49,7 @@ export default function RegisterPage() {
       });
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudo crear la cuenta");
+      setError(err.response?.data?.message || t("register.createError"));
     } finally {
       setLoading(false);
     }
@@ -55,7 +57,7 @@ export default function RegisterPage() {
 
   const handleGoogleSuccess = async ({ credential }) => {
     if (!acceptedPolicy) {
-      setError("Debes aceptar la política de tratamiento de datos para continuar");
+      setError(t("register.policyRequired"));
       return;
     }
 
@@ -65,7 +67,7 @@ export default function RegisterPage() {
       navigate("/");
     } catch (err) {
       setError(
-        err.response?.data?.message || "No se pudo crear la cuenta con Google"
+        err.response?.data?.message || t("register.googleCreateError")
       );
     }
   };
@@ -78,7 +80,7 @@ export default function RegisterPage() {
     <div className="mx-auto grid max-w-4xl gap-6 rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-card dark:border-white/10 dark:bg-slate-800/90 md:grid-cols-2 md:p-10">
       <form onSubmit={handleSubmit} className="order-2 space-y-4 md:order-1">
         <div>
-          <label className={labelClass}>Nombre completo</label>
+          <label className={labelClass}>{t("register.fullName")}</label>
           <input
             type="text"
             required
@@ -87,12 +89,12 @@ export default function RegisterPage() {
               setForm((current) => ({ ...current, fullName: event.target.value }))
             }
             className={inputClass}
-            placeholder="Nombre Apellido"
+            placeholder={t("register.fullNamePlaceholder")}
           />
         </div>
 
         <div>
-          <label className={labelClass}>Email</label>
+          <label className={labelClass}>{t("register.email")}</label>
           <input
             type="email"
             required
@@ -106,7 +108,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className={labelClass}>Contraseña</label>
+          <label className={labelClass}>{t("register.password")}</label>
           <input
             type="password"
             required
@@ -116,12 +118,12 @@ export default function RegisterPage() {
               setForm((current) => ({ ...current, password: event.target.value }))
             }
             className={inputClass}
-            placeholder="Mínimo 6 caracteres"
+            placeholder={t("register.passwordPlaceholder")}
           />
         </div>
 
         <div>
-          <label className={labelClass}>Confirmar contraseña</label>
+          <label className={labelClass}>{t("register.confirmPassword")}</label>
           <input
             type="password"
             required
@@ -134,7 +136,7 @@ export default function RegisterPage() {
               }))
             }
             className={inputClass}
-            placeholder="Repite tu contraseña"
+            placeholder={t("register.confirmPasswordPlaceholder")}
           />
         </div>
 
@@ -147,13 +149,13 @@ export default function RegisterPage() {
             required
           />
           <span>
-            He leído y acepto la{" "}
+            {t("register.acceptPolicy")}{" "}
             <button
               type="button"
               onClick={() => setShowPolicy(true)}
               className="font-semibold text-coral underline"
             >
-              Política de Tratamiento de Datos Personales
+              {t("register.policyLink")}
             </button>
           </span>
         </label>
@@ -169,12 +171,12 @@ export default function RegisterPage() {
           disabled={loading || !acceptedPolicy}
           className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60 dark:bg-cream dark:text-ink dark:hover:bg-white"
         >
-          {loading ? "Creando cuenta..." : "Crear cuenta"}
+          {loading ? t("register.submitting") : t("register.submit")}
         </button>
 
         <div className="flex items-center gap-3 text-xs text-ink/50 dark:text-cream/50">
           <span className="h-px flex-1 bg-ink/10 dark:bg-white/10" />
-          o
+          {t("register.or")}
           <span className="h-px flex-1 bg-ink/10 dark:bg-white/10" />
         </div>
 
@@ -187,26 +189,25 @@ export default function RegisterPage() {
         >
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => setError("Falló el registro con Google")}
+            onError={() => setError(t("register.googleError"))}
           />
         </div>
 
         <p className="pt-2 text-center text-sm text-ink/70 dark:text-cream/70">
-          ¿Ya tienes cuenta?{" "}
+          {t("register.hasAccount")}{" "}
           <Link to="/login" className="font-semibold text-coral hover:underline">
-            Inicia sesión
+            {t("register.loginHere")}
           </Link>
         </p>
       </form>
 
       <div className="order-1 rounded-3xl bg-gradient-to-br from-coral via-peach to-mint p-7 text-ink md:order-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em]">Registro</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em]">{t("register.eyebrow")}</p>
         <h1 className="mt-4 font-display text-4xl leading-tight">
-          Crea tu cuenta en menos de un minuto.
+          {t("register.title")}
         </h1>
         <p className="mt-4 text-sm text-ink/80">
-          Guarda tus pedidos, arma carrito y explora nuevos productos para tu
-          mascota.
+          {t("register.subtitle")}
         </p>
       </div>
 

@@ -3,21 +3,9 @@ import { ReceiptText } from "lucide-react";
 import Pagination from "../components/Pagination";
 import SectionTitle from "../components/SectionTitle";
 import TicketModal from "../components/TicketModal";
+import { useLanguage } from "../context/LanguageContext";
 import { orderService } from "../services/orderService";
 import { formatCurrency } from "../utils/formatCurrency";
-
-const statusLabels = {
-  PENDING: "Pendiente",
-  PAID: "Pagado",
-  SHIPPED: "Enviado",
-  CANCELLED: "Cancelado",
-};
-
-const paymentLabels = {
-  CASH: "Efectivo",
-  TRANSFER: "Transferencia",
-  PAYPAL: "PayPal",
-};
 
 const statusStyles = {
   PENDING: "bg-amber-100 text-amber-700",
@@ -26,19 +14,8 @@ const statusStyles = {
   CANCELLED: "bg-rose-100 text-rose-700",
 };
 
-function formatDate(value) {
-  return new Date(value).toLocaleDateString("es-CO", {
-    dateStyle: "medium",
-    timeZone: "America/Bogota",
-  });
-}
-
-/**
- * Vista compacta en tabla para que el administrador gestione los pedidos:
- * fecha, cliente, N° de ticket, método de pago, estado y acciones rápidas
- * (cambiar estado, ver/imprimir ticket). Con paginación desde el backend.
- */
 export default function AdminOrdersPage() {
+  const { t, formatDate } = useLanguage();
   const [pageData, setPageData] = useState({ content: [], page: 0, totalPages: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -53,7 +30,7 @@ export default function AdminOrdersPage() {
       const data = await orderService.getAllOrders(page, pageSize);
       setPageData(data);
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudieron cargar los pedidos.");
+      setError(err.response?.data?.message || t("adminOrders.loadError"));
     } finally {
       setLoading(false);
     }
@@ -66,20 +43,20 @@ export default function AdminOrdersPage() {
   const handleStatusChange = async (orderId, status) => {
     try {
       await orderService.updateOrderStatus(orderId, status);
-      setFeedback(`Pedido #${orderId} actualizado a ${statusLabels[status]}.`);
+      setFeedback(t("adminOrders.updatedFeedback", { id: orderId, status: t(`orderStatus.${status}`) }));
       await loadOrders(pageData.page);
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudo actualizar el estado.");
+      setError(err.response?.data?.message || t("adminOrders.updateError"));
     }
   };
 
   const handleConfirmPayment = async (orderId, paymentMethod) => {
     try {
       await orderService.updatePayment(orderId, paymentMethod, true);
-      setFeedback(`Pago del pedido #${orderId} confirmado.`);
+      setFeedback(t("adminOrders.paymentConfirmedFeedback", { id: orderId }));
       await loadOrders(pageData.page);
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudo confirmar el pago.");
+      setError(err.response?.data?.message || t("adminOrders.paymentConfirmError"));
     }
   };
 
@@ -88,17 +65,19 @@ export default function AdminOrdersPage() {
       const data = await orderService.getTicket(orderId);
       setTicket(data);
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudo generar el ticket.");
+      setError(err.response?.data?.message || t("adminOrders.ticketError"));
     }
   };
+
+  const statusOptions = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
 
   return (
     <div className="space-y-6">
       <section className="rounded-3xl bg-white/85 p-6 shadow-card">
         <SectionTitle
-          eyebrow="Administración"
-          title="Pedidos"
-          description="Consulta y gestiona el estado de los pedidos realizados por los clientes."
+          eyebrow={t("adminOrders.eyebrow")}
+          title={t("adminOrders.title")}
+          description={t("adminOrders.description")}
         />
       </section>
 
@@ -115,26 +94,26 @@ export default function AdminOrdersPage() {
 
       <section className="overflow-x-auto rounded-3xl bg-white/85 p-4 shadow-card">
         {loading ? (
-          <p className="p-4 text-sm text-ink/60">Cargando pedidos...</p>
+          <p className="p-4 text-sm text-ink/60">{t("adminOrders.loading")}</p>
         ) : pageData.content.length === 0 ? (
-          <p className="p-4 text-sm text-ink/60">No hay pedidos registrados.</p>
+          <p className="p-4 text-sm text-ink/60">{t("adminOrders.empty")}</p>
         ) : (
           <table className="w-full min-w-[820px] text-left text-sm">
             <thead>
               <tr className="border-b border-ink/10 text-xs uppercase tracking-wide text-ink/50">
-                <th className="px-3 py-2">Fecha</th>
-                <th className="px-3 py-2">Cliente</th>
-                <th className="px-3 py-2">Ticket</th>
-                <th className="px-3 py-2">Pago</th>
-                <th className="px-3 py-2">Estado</th>
-                <th className="px-3 py-2 text-right">Total</th>
-                <th className="px-3 py-2">Acciones</th>
+                <th className="px-3 py-2">{t("adminOrders.table.date")}</th>
+                <th className="px-3 py-2">{t("adminOrders.table.customer")}</th>
+                <th className="px-3 py-2">{t("adminOrders.table.ticket")}</th>
+                <th className="px-3 py-2">{t("adminOrders.table.payment")}</th>
+                <th className="px-3 py-2">{t("adminOrders.table.status")}</th>
+                <th className="px-3 py-2 text-right">{t("adminOrders.table.total")}</th>
+                <th className="px-3 py-2">{t("adminOrders.table.actions")}</th>
               </tr>
             </thead>
             <tbody>
               {pageData.content.map((order) => (
                 <tr key={order.id} className="border-b border-ink/5 last:border-0">
-                  <td className="px-3 py-2 text-ink/80">{formatDate(order.createdAt)}</td>
+                  <td className="px-3 py-2 text-ink/80">{formatDate(order.createdAt, { dateStyle: "medium" })}</td>
                   <td className="px-3 py-2">
                     <p className="font-semibold text-ink">{order.userName}</p>
                     <p className="text-xs text-ink/50">ID {order.userId}</p>
@@ -142,22 +121,22 @@ export default function AdminOrdersPage() {
                   <td className="px-3 py-2 text-ink/80">{order.ticketNumber || "—"}</td>
                   <td className="px-3 py-2 text-ink/80">
                     {order.paymentMethod ? (
-                      paymentLabels[order.paymentMethod]
+                      t(`paymentMethods.${order.paymentMethod}`) || order.paymentMethod
                     ) : (
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs text-ink/50">Sin confirmar</span>
+                        <span className="text-xs text-ink/50">{t("adminOrders.table.unconfirmed")}</span>
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleConfirmPayment(order.id, "CASH")}
                             className="rounded-full border border-ink/15 px-2 py-0.5 text-[11px] font-semibold text-ink hover:bg-sand"
                           >
-                            Efectivo
+                            {t("adminOrders.table.cashShort")}
                           </button>
                           <button
                             onClick={() => handleConfirmPayment(order.id, "TRANSFER")}
                             className="rounded-full border border-ink/15 px-2 py-0.5 text-[11px] font-semibold text-ink hover:bg-sand"
                           >
-                            Transf.
+                            {t("adminOrders.table.transferShort")}
                           </button>
                         </div>
                       </div>
@@ -172,9 +151,9 @@ export default function AdminOrdersPage() {
                         statusStyles[order.status] || "bg-slate-100 text-slate-700",
                       ].join(" ")}
                     >
-                      {Object.entries(statusLabels).map(([value, label]) => (
+                      {statusOptions.map((value) => (
                         <option key={value} value={value}>
-                          {label}
+                          {t(`orderStatus.${value}`)}
                         </option>
                       ))}
                     </select>
@@ -188,7 +167,7 @@ export default function AdminOrdersPage() {
                       className="inline-flex items-center gap-1 rounded-full border border-ink/20 px-3 py-1.5 text-xs font-semibold text-ink hover:bg-sand"
                     >
                       <ReceiptText size={14} />
-                      Ticket
+                      {t("adminOrders.table.ticketBtn")}
                     </button>
                   </td>
                 </tr>

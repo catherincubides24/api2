@@ -5,6 +5,7 @@ import Pagination from "../components/Pagination";
 import SectionTitle from "../components/SectionTitle";
 import TicketModal from "../components/TicketModal";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { orderService } from "../services/orderService";
 import { formatCurrency } from "../utils/formatCurrency";
 
@@ -15,28 +16,9 @@ const statusStyles = {
   CANCELLED: "bg-rose-100 text-rose-700",
 };
 
-const statusLabels = {
-  PENDING: "Pendiente",
-  PAID: "Pagado",
-  SHIPPED: "Enviado",
-  CANCELLED: "Cancelado",
-};
-
-function formatDate(value) {
-  return new Date(value).toLocaleString("es-CO", {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "America/Bogota",
-  });
-}
-
-/**
- * Historial de compras del cliente autenticado (paginado).
- * La gestión administrativa de todos los pedidos vive ahora en AdminOrdersPage,
- * para que cada cliente solo vea su propia información.
- */
 export default function PurchasesPage() {
   const { user } = useAuth();
+  const { t, formatDate, tProductName } = useLanguage();
   const [pageData, setPageData] = useState({ content: [], page: 0, totalPages: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -52,7 +34,7 @@ export default function PurchasesPage() {
       setPageData(data);
     } catch (err) {
       setError(
-        err.response?.data?.message || "No se pudo cargar tu historial de compras."
+        err.response?.data?.message || t("purchases.loadError")
       );
     } finally {
       setLoading(false);
@@ -69,7 +51,7 @@ export default function PurchasesPage() {
       const data = await orderService.getTicket(orderId);
       setTicket(data);
     } catch (err) {
-      setError(err.response?.data?.message || "No se pudo obtener el ticket.");
+      setError(err.response?.data?.message || t("purchases.ticketError"));
     }
   };
 
@@ -77,9 +59,9 @@ export default function PurchasesPage() {
     <div className="space-y-6">
       <section className="rounded-3xl bg-white/85 p-6 shadow-card">
         <SectionTitle
-          eyebrow="Pedidos"
-          title="Mis compras"
-          description="Aquí puedes ver todas las compras que ya realizaste en la tienda."
+          eyebrow={t("purchases.eyebrow")}
+          title={t("purchases.title")}
+          description={t("purchases.description")}
         />
       </section>
 
@@ -102,15 +84,15 @@ export default function PurchasesPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-sand text-ink">
             <ReceiptText size={24} />
           </div>
-          <h2 className="font-display text-3xl text-ink">Aún no tienes compras</h2>
+          <h2 className="font-display text-3xl text-ink">{t("purchases.emptyTitle")}</h2>
           <p className="mt-2 text-ink/70">
-            Cuando completes un pedido desde el carrito, aparecerá aquí.
+            {t("purchases.emptySubtitle")}
           </p>
           <Link
             to="/"
             className="mt-6 inline-flex rounded-full bg-ink px-5 py-3 text-sm font-semibold text-cream"
           >
-            Ir al catálogo
+            {t("purchases.goToCatalog")}
           </Link>
         </div>
       )}
@@ -125,9 +107,11 @@ export default function PurchasesPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 pb-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-ink/50">
-                    Pedido #{order.id} · {order.ticketNumber}
+                    {t("purchases.orderNumber", { id: order.id, ticketNumber: order.ticketNumber })}
                   </p>
-                  <h3 className="text-lg font-bold text-ink">{formatDate(order.createdAt)}</h3>
+                  <h3 className="text-lg font-bold text-ink">
+                    {formatDate(order.createdAt, { dateStyle: "medium", timeStyle: "short" })}
+                  </h3>
                 </div>
 
                 <div className="text-right">
@@ -137,7 +121,7 @@ export default function PurchasesPage() {
                       statusStyles[order.status] || "bg-slate-100 text-slate-700",
                     ].join(" ")}
                   >
-                    {statusLabels[order.status] || order.status}
+                    {t(`orderStatus.${order.status}`)}
                   </span>
                   <p className="mt-2 text-xl font-extrabold text-coral">
                     {formatCurrency(order.totalAmount)}
@@ -151,7 +135,7 @@ export default function PurchasesPage() {
                     key={`${order.id}-${item.productId}`}
                     className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-sand/70 px-3 py-2"
                   >
-                    <p className="text-sm font-semibold text-ink">{item.productName}</p>
+                    <p className="text-sm font-semibold text-ink">{tProductName(item.productName)}</p>
                     <p className="text-sm text-ink/75">
                       {item.quantity} x {formatCurrency(item.unitPrice)} ={" "}
                       <span className="font-semibold text-ink">
@@ -167,7 +151,7 @@ export default function PurchasesPage() {
                 className="mt-4 inline-flex items-center gap-2 rounded-full border border-ink/20 px-4 py-2 text-xs font-semibold text-ink hover:bg-sand"
               >
                 <ReceiptText size={14} />
-                Ver ticket
+                {t("purchases.viewTicket")}
               </button>
             </article>
           ))}

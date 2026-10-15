@@ -15,11 +15,13 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SectionTitle from "../components/SectionTitle";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import { backupService } from "../services/backupService";
 import { downloadBlob } from "../utils/downloadBlob";
 
 export default function BackupPage() {
   const { user, isAdmin, isStaff, isCustomer, logout } = useAuth();
+  const { t, formatDate } = useLanguage();
   const navigate = useNavigate();
 
   // Estados de información de BD
@@ -42,10 +44,10 @@ export default function BackupPage() {
 
   // Determinar etiqueta amigable del rol
   const roleLabel = isAdmin
-    ? "Administrador"
+    ? t("backup.roles.ADMIN")
     : isStaff
-    ? "Trabajador (Empleado)"
-    : "Cliente";
+    ? t("backup.roles.STAFF")
+    : t("backup.roles.CUSTOMER");
 
   const loadInfo = async () => {
     try {
@@ -90,7 +92,7 @@ export default function BackupPage() {
       console.error("Error al descargar la copia de seguridad", err);
       setErrorMsg(
         err.response?.data?.message ||
-          "Ocurrió un error al generar la copia de seguridad."
+          t("backup.downloadError")
       );
     } finally {
       setDownloading(false);
@@ -108,7 +110,7 @@ export default function BackupPage() {
     if (!file) return;
 
     if (!file.name.toLowerCase().endsWith(".sql")) {
-      setErrorMsg("El archivo seleccionado debe tener extensión .sql");
+      setErrorMsg(t("backup.sqlExtensionError"));
       setSelectedFile(null);
       return;
     }
@@ -155,7 +157,7 @@ export default function BackupPage() {
       console.error("Error al restaurar la base de datos", err);
       setErrorMsg(
         err.response?.data?.message ||
-          "Error al ejecutar la restauración. La base de datos fue revertida a su estado anterior."
+          t("backup.restoreError")
       );
     } finally {
       setRestoring(false);
@@ -182,20 +184,20 @@ export default function BackupPage() {
           <SectionTitle
             title={
               isCustomer
-                ? "Copia de Seguridad de Compras"
-                : "Copia de Seguridad y Restauración"
+                ? t("backup.customerTitle")
+                : t("backup.staffTitle")
             }
             subtitle={
               isCustomer
-                ? "Descarga un archivo SQL con tus compras y pedidos, o restaura tu historial personal"
-                : "Gestiona respaldos en formato SQL y restaura la base de datos de Huellitas Shop"
+                ? t("backup.customerSubtitle")
+                : t("backup.staffSubtitle")
             }
           />
         </div>
         <div className="flex items-center gap-2 self-start rounded-2xl bg-white px-4 py-2.5 shadow-soft dark:bg-slate-800">
           <ShieldCheck className="text-mint" size={20} />
           <div className="text-sm">
-            <span className="text-ink/60 dark:text-cream/60">Rol habilitado: </span>
+            <span className="text-ink/60 dark:text-cream/60">{t("backup.roleLabel")} </span>
             <span className="font-semibold text-ink dark:text-cream">
               {roleLabel} ({user?.fullName})
             </span>
@@ -212,7 +214,7 @@ export default function BackupPage() {
             onClick={() => setErrorMsg("")}
             className="text-xs font-semibold underline"
           >
-            Cerrar
+            {t("backup.close")}
           </button>
         </div>
       )}
@@ -226,11 +228,11 @@ export default function BackupPage() {
             </span>
             <div>
               <h3 className="font-display text-lg font-bold text-ink dark:text-cream">
-                {isCustomer ? "Resumen de Compras del Cliente" : "Estado de la Base de Datos"}
+                {isCustomer ? t("backup.customerCardTitle") : t("backup.dbCardTitle")}
               </h3>
               <p className="text-xs text-ink/60 dark:text-cream/60">
                 {isCustomer
-                  ? `Historial personal de ${user?.fullName || "Cliente"}`
+                  ? t("backup.customerHistoryOf", { name: user?.fullName || "Cliente" })
                   : `${dbInfo?.databaseName || "petshop_db"} • ${dbInfo?.databaseVersion || "PostgreSQL 16"}`}
               </p>
             </div>
@@ -238,7 +240,7 @@ export default function BackupPage() {
           <button
             onClick={loadInfo}
             disabled={loadingInfo}
-            title="Actualizar métricas"
+            title={t("backup.refreshMetrics")}
             className="rounded-full p-2 text-ink/60 transition hover:bg-ink/5 hover:text-ink disabled:opacity-50 dark:text-cream/60 dark:hover:bg-white/10 dark:hover:text-cream"
           >
             <RefreshCw size={18} className={loadingInfo ? "animate-spin" : ""} />
@@ -249,7 +251,7 @@ export default function BackupPage() {
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Total Registros Personales
+                {t("backup.totalPersonalRecords")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-coral">
                 {dbInfo?.totalRecords ?? 0}
@@ -257,7 +259,7 @@ export default function BackupPage() {
             </div>
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Mis Pedidos Realizados
+                {t("backup.myOrdersPlaced")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-ink dark:text-cream">
                 {dbInfo?.tableCounts?.mis_pedidos ?? 0}
@@ -265,7 +267,7 @@ export default function BackupPage() {
             </div>
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Mis Artículos Comprados
+                {t("backup.myItemsPurchased")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-ink dark:text-cream">
                 {dbInfo?.tableCounts?.mis_articulos_comprados ?? 0}
@@ -276,7 +278,7 @@ export default function BackupPage() {
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Total Registros
+                {t("backup.totalRecords")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-coral">
                 {dbInfo?.totalRecords ?? 0}
@@ -284,7 +286,7 @@ export default function BackupPage() {
             </div>
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Usuarios
+                {t("backup.users")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-ink dark:text-cream">
                 {dbInfo?.tableCounts?.users ?? 0}
@@ -292,7 +294,7 @@ export default function BackupPage() {
             </div>
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Productos
+                {t("backup.products")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-ink dark:text-cream">
                 {dbInfo?.tableCounts?.products ?? 0}
@@ -300,7 +302,7 @@ export default function BackupPage() {
             </div>
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Pedidos
+                {t("backup.orders")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-ink dark:text-cream">
                 {dbInfo?.tableCounts?.orders ?? 0}
@@ -308,7 +310,7 @@ export default function BackupPage() {
             </div>
             <div className="rounded-2xl bg-sand/30 p-4 dark:bg-slate-900/60">
               <p className="text-xs font-medium uppercase tracking-wider text-ink/50 dark:text-cream/50">
-                Detalles Pedido
+                {t("backup.orderItems")}
               </p>
               <p className="mt-1 text-2xl font-extrabold text-ink dark:text-cream">
                 {dbInfo?.tableCounts?.order_items ?? 0}
@@ -329,41 +331,41 @@ export default function BackupPage() {
               </span>
               <div>
                 <h3 className="font-display text-xl font-bold text-ink dark:text-cream">
-                  {isCustomer ? "Respaldar Mis Compras" : "Generar Copia de Seguridad"}
+                  {isCustomer ? t("backup.downloadCustomerTitle") : t("backup.downloadStaffTitle")}
                 </h3>
                 <p className="text-xs text-ink/60 dark:text-cream/60">
                   {isCustomer
-                    ? "Exportación exclusiva de tus compras y pedidos en formato .sql"
-                    : "Exportación en archivo estructurado con formato .sql"}
+                    ? t("backup.downloadCustomerSubtitle")
+                    : t("backup.downloadStaffSubtitle")}
                 </p>
               </div>
             </div>
 
             <p className="mt-4 text-sm leading-relaxed text-ink/75 dark:text-cream/75">
               {isCustomer
-                ? "Genera un archivo SQL descargable con el registro de todos tus pedidos y artículos comprados. El respaldo contiene exclusivamente tus transacciones personales, garantizando total privacidad."
-                : "Genera un volcado completo de todas las tablas, registros y secuencias del sistema. El archivo resultante es un script SQL estándar compatible con PostgreSQL, apto para restauración directa o auditoría."}
+                ? t("backup.downloadCustomerBody")
+                : t("backup.downloadStaffBody")}
             </p>
 
             <div className="mt-6 space-y-2 rounded-2xl bg-sand/30 p-4 text-xs text-ink/70 dark:bg-slate-900/60 dark:text-cream/70">
               <div className="flex items-center gap-2">
                 <FileCode size={16} className="text-coral" />
-                <span>Extensión de salida: <strong className="font-semibold text-ink dark:text-cream">.sql</strong></span>
+                <span>{t("backup.outputExtension")} <strong className="font-semibold text-ink dark:text-cream">.sql</strong></span>
               </div>
               <div className="flex items-center gap-2">
                 <HardDrive size={16} className="text-coral" />
                 <span>
                   {isCustomer
-                    ? "Incluye: Exclusivamente tus pedidos y artículos comprados."
-                    : "Incluye: Tablas, datos, limpieza previa e índices/secuencias."}
+                    ? t("backup.includesCustomer")
+                    : t("backup.includesStaff")}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 size={16} className="text-mint" />
                 <span>
                   {isCustomer
-                    ? "Privacidad: Aislado, sin acceso a compras de otros clientes."
-                    : "Codificación: UTF-8 con sentencias transaccionales atómicas."}
+                    ? t("backup.privacyCustomer")
+                    : t("backup.encodingStaff")}
                 </span>
               </div>
             </div>
@@ -375,8 +377,8 @@ export default function BackupPage() {
                 <CheckCircle2 size={18} />
                 <span>
                   {isCustomer
-                    ? "¡Copia de compras descargada exitosamente!"
-                    : "¡Copia de seguridad descargada exitosamente!"}
+                    ? t("backup.downloadCustomerSuccess")
+                    : t("backup.downloadStaffSuccess")}
                 </span>
               </div>
             )}
@@ -388,15 +390,15 @@ export default function BackupPage() {
               {downloading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  <span>Generando archivo SQL...</span>
+                  <span>{t("backup.generatingSql")}</span>
                 </>
               ) : (
                 <>
                   <Download size={18} />
                   <span>
                     {isCustomer
-                      ? "Descargar Mis Compras (.sql)"
-                      : "Descargar Copia de Seguridad (.sql)"}
+                      ? t("backup.downloadCustomerBtn")
+                      : t("backup.downloadStaffBtn")}
                   </span>
                 </>
               )}
@@ -413,20 +415,22 @@ export default function BackupPage() {
               </span>
               <div>
                 <h3 className="font-display text-xl font-bold text-ink dark:text-cream">
-                  {isCustomer ? "Restaurar Mis Pedidos" : "Restaurar Copia de Seguridad"}
+                  {isCustomer
+                    ? t("backup.restoreCustomerTitle")
+                    : t("backup.restoreStaffTitle")}
                 </h3>
                 <p className="text-xs text-ink/60 dark:text-cream/60">
                   {isCustomer
-                    ? "Restaura tu historial de compras desde un archivo .sql"
-                    : "Importa y restablece los datos a partir de un archivo .sql"}
+                    ? t("backup.restoreCustomerSubtitle")
+                    : t("backup.restoreStaffSubtitle")}
                 </p>
               </div>
             </div>
 
             <p className="mt-4 text-sm leading-relaxed text-ink/75 dark:text-cream/75">
               {isCustomer
-                ? "Carga un archivo de respaldo con extensión .sql para restaurar tu historial de compras en tu cuenta de Huellitas Shop."
-                : "Carga un archivo de respaldo con extensión .sql para restaurar el estado de la base de datos. La operación se ejecuta en una transacción protegida contra fallos."}
+                ? t("backup.restoreCustomerBody")
+                : t("backup.restoreStaffBody")}
             </p>
 
             {/* Zona de Drag & Drop */}
@@ -460,17 +464,17 @@ export default function BackupPage() {
                     {selectedFile.name}
                   </p>
                   <p className="text-xs text-ink/60 dark:text-cream/60">
-                    Tamaño: {formatFileSize(selectedFile.size)} &bull; Haz clic para cambiar archivo
+                    {t("backup.fileSize")} {formatFileSize(selectedFile.size)} &bull; {t("backup.clickToChange")}
                   </p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2">
                   <UploadCloud size={32} className="text-ink/40 dark:text-cream/40" />
                   <p className="text-sm font-semibold text-ink dark:text-cream">
-                    Arrastra tu archivo .sql aquí o haz clic para seleccionarlo
+                    {t("backup.dragDropText")}
                   </p>
                   <p className="text-xs text-ink/50 dark:text-cream/50">
-                    Únicamente archivos con extensión .sql (máx. 50 MB)
+                    {t("backup.sqlOnlyNotice")}
                   </p>
                 </div>
               )}
@@ -480,10 +484,10 @@ export default function BackupPage() {
             <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-amber-50 p-3.5 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
               <AlertTriangle size={18} className="shrink-0 text-amber-600 dark:text-amber-400" />
               <p>
-                <strong>Atención:</strong>{" "}
+                <strong>{t("backup.attention")}</strong>{" "}
                 {isCustomer
-                  ? "La restauración actualizará tus pedidos con los datos del archivo SQL. Los registros de otros clientes no se verán afectados."
-                  : "La restauración reemplazará los datos actuales de la base de datos con los registros del archivo SQL. Esta acción no se puede deshacer."}
+                  ? t("backup.attentionCustomer")
+                  : t("backup.attentionStaff")}
               </p>
             </div>
           </div>
@@ -497,13 +501,15 @@ export default function BackupPage() {
               {restoring ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  <span>Restaurando...</span>
+                  <span>{t("backup.restoringBtn")}</span>
                 </>
               ) : (
                 <>
                   <RotateCcw size={18} />
                   <span>
-                    {isCustomer ? "Restaurar Mis Compras" : "Restaurar Base de Datos"}
+                    {isCustomer
+                      ? t("backup.restoreCustomerBtn")
+                      : t("backup.restoreStaffBtn")}
                   </span>
                 </>
               )}
@@ -521,22 +527,22 @@ export default function BackupPage() {
                 <AlertTriangle size={24} />
               </span>
               <h3 className="font-display text-xl font-bold text-ink dark:text-cream">
-                ¿Confirmar Restauración?
+                {t("backup.confirmTitle")}
               </h3>
             </div>
 
             <p className="mt-4 text-sm text-ink/75 dark:text-cream/75">
               {isCustomer
-                ? "Estás a punto de restaurar tus pedidos con el archivo:"
-                : "Estás a punto de restaurar la base de datos con el archivo:"}
+                ? t("backup.confirmCustomerPrompt")
+                : t("backup.confirmStaffPrompt")}
             </p>
             <div className="mt-2 rounded-xl bg-sand/40 p-3 text-xs font-semibold text-ink dark:bg-slate-900/60 dark:text-cream">
               📄 {selectedFile?.name} ({formatFileSize(selectedFile?.size || 0)})
             </div>
             <p className="mt-3 text-xs text-ink/60 dark:text-cream/60">
               {isCustomer
-                ? "Tus pedidos y compras serán restablecidos con los datos de esta copia personal."
-                : "Los registros actuales serán limpiados e insertados con los datos de esta copia."}
+                ? t("backup.confirmCustomerDesc")
+                : t("backup.confirmStaffDesc")}
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -544,13 +550,13 @@ export default function BackupPage() {
                 onClick={() => setShowConfirmModal(false)}
                 className="rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:bg-sand/30 dark:border-white/20 dark:text-cream dark:hover:bg-white/10"
               >
-                Cancelar
+                {t("backup.cancel")}
               </button>
               <button
                 onClick={handleConfirmRestore}
                 className="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-red-700"
               >
-                Sí, restaurar ahora
+                {t("backup.confirmBtn")}
               </button>
             </div>
           </div>
@@ -566,7 +572,7 @@ export default function BackupPage() {
                 <CheckCircle2 size={24} />
               </span>
               <h3 className="font-display text-xl font-bold text-ink dark:text-cream">
-                ¡Restauración Exitosa!
+                {t("backup.successTitle")}
               </h3>
             </div>
 
@@ -576,20 +582,26 @@ export default function BackupPage() {
 
             <div className="mt-4 space-y-1.5 rounded-2xl bg-sand/30 p-4 text-xs text-ink/70 dark:bg-slate-900/60 dark:text-cream/70">
               <p>
-                <strong>Archivo aplicado:</strong> {restoreResult.fileName}
+                <strong>{t("backup.appliedFile")}</strong> {restoreResult.fileName}
               </p>
               <p>
-                <strong>Sentencias ejecutadas:</strong> {restoreResult.statementsExecuted}
+                <strong>{t("backup.executedStatements")}</strong> {restoreResult.statementsExecuted}
               </p>
               <p>
-                <strong>Fecha/Hora:</strong>{" "}
-                {new Date(restoreResult.restoredAt).toLocaleString("es-CO")}
+                <strong>{t("backup.dateTime")}</strong>{" "}
+                {formatDate(restoreResult.restoredAt, {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })}
               </p>
             </div>
 
             <p className="mt-4 text-xs text-ink/60 dark:text-cream/60">
-              Para sincronizar las sesiones activas y asegurar que todos los datos
-              se visualicen actualizados, se cerrará tu sesión actual.
+              {t("backup.reloginNotice")}
             </p>
 
             <div className="mt-6 flex justify-end">
@@ -597,7 +609,7 @@ export default function BackupPage() {
                 onClick={handleFinishAndRelogin}
                 className="rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-cream shadow-soft transition hover:bg-dusk dark:bg-white dark:text-ink dark:hover:bg-cream"
               >
-                Aceptar e Iniciar Sesión
+                {t("backup.acceptAndLogin")}
               </button>
             </div>
           </div>

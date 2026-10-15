@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { LanguageProvider } from "./context/LanguageContext";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminPage from "./pages/AdminPage";
 import AdminSalesPage from "./pages/AdminSalesPage";
@@ -92,11 +93,11 @@ function AppShell() {
             }
           />
 
-          {/* Backup y restauración de BD — Accesible para Administrador, Trabajador y Cliente */}
+          {/* Backup y restauración de BD — Solo para Administrador y Trabajador */}
           <Route
             path="/backup"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireStaff>
                 <BackupPage />
               </ProtectedRoute>
             }
@@ -127,13 +128,15 @@ export default function App() {
   return (
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <ThemeProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <CartProvider>
-              <AppShell />
-            </CartProvider>
-          </AuthProvider>
-        </BrowserRouter>
+        <LanguageProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <CartProvider>
+                <AppShell />
+              </CartProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </LanguageProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
   );

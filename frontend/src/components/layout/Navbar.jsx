@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { useLanguage } from "../../context/LanguageContext";
+import LanguageToggle from "../LanguageToggle";
 import ThemeToggle from "../ThemeToggle";
 
 function navClass({ isActive }) {
@@ -17,6 +19,7 @@ function navClass({ isActive }) {
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, isStaff, logout } = useAuth();
   const { itemCount } = useCart();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
 
   return (
@@ -28,7 +31,7 @@ export default function Navbar() {
           </span>
           <div>
             <p className="font-display text-2xl leading-none">Huellitas Shop</p>
-            <p className="text-xs text-ink/60 dark:text-cream/60">Cuidado y estilo para tu mascota</p>
+            <p className="text-xs text-ink/60 dark:text-cream/60">{t("navbar.subtitle")}</p>
           </div>
         </Link>
 
@@ -37,38 +40,38 @@ export default function Navbar() {
           {isStaff ? (
             <>
               <NavLink to="/admin" className={navClass} end>
-                Productos
+                {t("navbar.products")}
               </NavLink>
               <NavLink to="/admin/sales" className={navClass}>
-                Ventas
+                {t("navbar.sales")}
               </NavLink>
               <NavLink to="/admin/orders" className={navClass}>
-                Pedidos
+                {t("navbar.orders")}
               </NavLink>
               <NavLink to="/admin/reports" className={navClass}>
-                Reportes
+                {t("navbar.reports")}
               </NavLink>
               <NavLink to="/backup" className={navClass}>
                 <span className="inline-flex items-center gap-1.5">
                   <Database size={16} />
-                  Copia de Seguridad
+                  {t("navbar.backup")}
                 </span>
               </NavLink>
               {isAdmin && (
                 <NavLink to="/admin/logs" className={navClass}>
-                  Logs
+                  {t("navbar.logs")}
                 </NavLink>
               )}
             </>
           ) : (
             <>
               <NavLink to="/" className={navClass}>
-                Productos
+                {t("navbar.products")}
               </NavLink>
               <NavLink to="/cart" className={navClass}>
                 <span className="inline-flex items-center gap-2">
                   <ShoppingBag size={16} />
-                  Carrito
+                  {t("navbar.cart")}
                   {itemCount > 0 && (
                     <span className="rounded-full bg-coral px-2 py-0.5 text-xs text-white">
                       {itemCount}
@@ -81,13 +84,7 @@ export default function Navbar() {
                   <NavLink to="/purchases" className={navClass}>
                     <span className="inline-flex items-center gap-2">
                       <ReceiptText size={16} />
-                      Mis compras
-                    </span>
-                  </NavLink>
-                  <NavLink to="/backup" className={navClass}>
-                    <span className="inline-flex items-center gap-1.5">
-                      <Database size={16} />
-                      Copia de Seguridad
+                      {t("navbar.myPurchases")}
                     </span>
                   </NavLink>
                 </>
@@ -98,6 +95,7 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           <ThemeToggle />
+          <LanguageToggle />
           {isAuthenticated ? (
             <>
               <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm shadow-soft dark:bg-slate-800 dark:text-cream">
@@ -108,7 +106,7 @@ export default function Navbar() {
                 onClick={logout}
                 className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-cream transition hover:bg-dusk"
               >
-                Cerrar sesión
+                {t("navbar.logout")}
               </button>
             </>
           ) : (
@@ -117,13 +115,13 @@ export default function Navbar() {
                 to="/login"
                 className="rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:bg-white dark:text-cream dark:hover:bg-slate-800"
               >
-                Ingresar
+                {t("navbar.login")}
               </Link>
               <Link
                 to="/register"
                 className="rounded-full bg-coral px-4 py-2 text-sm font-semibold text-white transition hover:bg-coral/90"
               >
-                Crear cuenta
+                {t("navbar.register")}
               </Link>
             </>
           )}
@@ -132,7 +130,7 @@ export default function Navbar() {
         <button
           onClick={() => setOpen((prev) => !prev)}
           className="inline-flex rounded-full border border-ink/20 p-2 text-ink md:hidden dark:text-cream"
-          aria-label="Abrir menú"
+          aria-label={t("navbar.openMenu")}
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -142,40 +140,43 @@ export default function Navbar() {
       {open && (
         <div className="border-t border-ink/10 bg-cream px-4 py-4 md:hidden dark:border-white/10 dark:bg-slate-900">
           <div className="flex flex-col gap-2">
-            <ThemeToggle className="self-start" />
+            <div className="flex items-center gap-2 pb-2">
+              <ThemeToggle />
+              <LanguageToggle />
+            </div>
             {isStaff ? (
               <>
                 <NavLink to="/admin" onClick={() => setOpen(false)} className={navClass} end>
-                  Productos
+                  {t("navbar.products")}
                 </NavLink>
                 <NavLink to="/admin/sales" onClick={() => setOpen(false)} className={navClass}>
-                  Ventas
+                  {t("navbar.sales")}
                 </NavLink>
                 <NavLink to="/admin/orders" onClick={() => setOpen(false)} className={navClass}>
-                  Pedidos
+                  {t("navbar.orders")}
                 </NavLink>
                 <NavLink to="/admin/reports" onClick={() => setOpen(false)} className={navClass}>
-                  Reportes
+                  {t("navbar.reports")}
                 </NavLink>
                 <NavLink to="/backup" onClick={() => setOpen(false)} className={navClass}>
                   <span className="inline-flex items-center gap-1.5">
                     <Database size={16} />
-                    Copia de Seguridad
+                    {t("navbar.backup")}
                   </span>
                 </NavLink>
                 {isAdmin && (
                   <NavLink to="/admin/logs" onClick={() => setOpen(false)} className={navClass}>
-                    Logs
+                    {t("navbar.logs")}
                   </NavLink>
                 )}
               </>
             ) : (
               <>
                 <NavLink to="/" onClick={() => setOpen(false)} className={navClass}>
-                  Productos
+                  {t("navbar.products")}
                 </NavLink>
                 <NavLink to="/cart" onClick={() => setOpen(false)} className={navClass}>
-                  Carrito ({itemCount})
+                  {t("navbar.cart")} ({itemCount})
                 </NavLink>
                 {isAuthenticated && (
                   <>
@@ -184,17 +185,7 @@ export default function Navbar() {
                       onClick={() => setOpen(false)}
                       className={navClass}
                     >
-                      Mis compras
-                    </NavLink>
-                    <NavLink
-                      to="/backup"
-                      onClick={() => setOpen(false)}
-                      className={navClass}
-                    >
-                      <span className="inline-flex items-center gap-1.5">
-                        <Database size={16} />
-                        Copia de Seguridad
-                      </span>
+                      {t("navbar.myPurchases")}
                     </NavLink>
                   </>
                 )}
@@ -208,7 +199,7 @@ export default function Navbar() {
                 }}
                 className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-cream"
               >
-                Cerrar sesión
+                {t("navbar.logout")}
               </button>
             ) : (
               <>
@@ -217,14 +208,14 @@ export default function Navbar() {
                   onClick={() => setOpen(false)}
                   className="rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink"
                 >
-                  Ingresar
+                  {t("navbar.login")}
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setOpen(false)}
                   className="rounded-full bg-coral px-4 py-2 text-sm font-semibold text-white"
                 >
-                  Crear cuenta
+                  {t("navbar.register")}
                 </Link>
               </>
             )}

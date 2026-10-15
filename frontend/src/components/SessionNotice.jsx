@@ -1,7 +1,9 @@
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function SessionNotice() {
   const { sessionNotice, dismissSessionNotice } = useAuth();
+  const { t } = useLanguage();
   if (!sessionNotice) return null;
 
   return (
@@ -13,7 +15,7 @@ export default function SessionNotice() {
       <button
         onClick={dismissSessionNotice}
         className="font-semibold"
-        aria-label="Cerrar aviso"
+        aria-label={t("ticket.close")}
       >
         ✕
       </button>
