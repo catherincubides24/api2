@@ -97,7 +97,7 @@
     "fullNamePlaceholder": "First Last Name",
     "email": "Email",
     "password": "Password",
-    "passwordPlaceholder": "Minimum 6 characters",
+    "passwordPlaceholder": "Create a strong password",
     "confirmPassword": "Confirm password",
     "confirmPasswordPlaceholder": "Repeat your password",
     "acceptPolicy": "I have read and accept the",
@@ -108,6 +108,7 @@
     "hasAccount": "Already have an account?",
     "loginHere": "Sign in",
     "passwordMismatch": "Passwords do not match",
+    "passwordPolicyError": "The password does not meet all requirements",
     "policyRequired": "You must accept the data processing policy to continue",
     "createError": "Could not create account",
     "googleError": "Google registration failed",
@@ -493,5 +494,21 @@
     "boolTrue": "Yes",
     "boolFalse": "No",
     "viewDetail": "View detail"
+  },
+  "password": {
+    "rule": {
+      "length": "Between 12 and 25 characters",
+      "upper": "One uppercase letter",
+      "lower": "One lowercase letter",
+      "digit": "One number",
+      "special": "One special character"
+    },
+    "met": "(met)",
+    "pending": "(pending)"
+  },
+  "passwordStrength": {
+    "weak": "Weak",
+    "medium": "Medium",
+    "strong": "Strong"
   }
 }

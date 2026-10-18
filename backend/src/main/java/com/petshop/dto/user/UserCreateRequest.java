@@ -1,6 +1,8 @@
 package com.petshop.dto.user;
 
 import com.petshop.entity.Role;
+import com.petshop.validation.StrongPassword;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +17,7 @@ public record UserCreateRequest(
         String email,
 
         @NotBlank(message = "La contraseña es obligatoria")
-        @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
+        @StrongPassword
         String password,
 
         @NotNull(message = "El rol es obligatorio")

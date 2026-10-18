@@ -97,7 +97,7 @@
     "fullNamePlaceholder": "Nombre Apellido",
     "email": "Email",
     "password": "Contraseña",
-    "passwordPlaceholder": "Mínimo 6 caracteres",
+    "passwordPlaceholder": "Crea una contraseña segura",
     "confirmPassword": "Confirmar contraseña",
     "confirmPasswordPlaceholder": "Repite tu contraseña",
     "acceptPolicy": "He leído y acepto la",
@@ -108,6 +108,7 @@
     "hasAccount": "¿Ya tienes cuenta?",
     "loginHere": "Inicia sesión",
     "passwordMismatch": "Las contraseñas no coinciden",
+    "passwordPolicyError": "La contraseña no cumple todos los requisitos",
     "policyRequired": "Debes aceptar la política de tratamiento de datos para continuar",
     "createError": "No se pudo crear la cuenta",
     "googleError": "Falló el registro con Google",
@@ -493,5 +494,21 @@
     "boolTrue": "Sí",
     "boolFalse": "No",
     "viewDetail": "Ver detalle"
+  },
+  "password": {
+    "rule": {
+      "length": "Entre 12 y 25 caracteres",
+      "upper": "Una letra mayúscula",
+      "lower": "Una letra minúscula",
+      "digit": "Un número",
+      "special": "Un carácter especial"
+    },
+    "met": "(cumplido)",
+    "pending": "(pendiente)"
+  },
+  "passwordStrength": {
+    "weak": "Débil",
+    "medium": "Media",
+    "strong": "Fuerte"
   }
 }

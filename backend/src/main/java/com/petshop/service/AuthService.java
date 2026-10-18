@@ -35,11 +35,11 @@ public class AuthService {
         }
 
         User user = User.builder()
-                .fullName(request.fullName())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .role(request.role() == null ? Role.CUSTOMER : request.role())
-                .build();
+        .fullName(request.fullName().trim())
+        .email(request.email().trim().toLowerCase())
+        .password(passwordEncoder.encode(request.password()))
+        .role(Role.CUSTOMER)
+        .build();
 
         User savedUser = userRepository.save(Objects.requireNonNull(user));
         return buildAuthResponse(savedUser, activeSessionService.open(savedUser));

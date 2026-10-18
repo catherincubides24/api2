@@ -1,10 +1,12 @@
 import { GoogleLogin } from "@react-oauth/google";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import PasswordRequirements from "../components/PasswordRequirements";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
-import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import { PRIVACY_POLICY_VERSION } from "../data/privacyPolicyContent";
+import { isPasswordValid } from "../utils/passwordPolicy";
 
 export default function RegisterPage() {
   const { register, loginWithGoogle } = useAuth();
@@ -22,11 +24,21 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const passwordOk = useMemo(() => isPasswordValid(form.password), [form.password]);
+  const passwordsMatch = form.password === form.confirmPassword;
+  const canSubmit = passwordOk && passwordsMatch && acceptedPolicy && !loading;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
 
-    if (form.password !== form.confirmPassword) {
+    // Defensa en profundidad: aunque el botón ya esté deshabilitado
+    if (!passwordOk) {
+      setError(t("register.passwordPolicyError"));
+      return;
+    }
+
+    if (!passwordsMatch) {
       setError(t("register.passwordMismatch"));
       return;
     }
@@ -40,16 +52,18 @@ export default function RegisterPage() {
 
     try {
       await register({
-        fullName: form.fullName,
-        email: form.email,
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
         password: form.password,
-        role: "CUSTOMER",
         acceptedDataPolicy: acceptedPolicy,
         dataPolicyVersion: PRIVACY_POLICY_VERSION,
       });
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || t("register.createError"));
+      const details = err.response?.data?.details;
+      setError(
+        details?.password || err.response?.data?.message || t("register.createError")
+      );
     } finally {
       setLoading(false);
     }
@@ -84,6 +98,7 @@ export default function RegisterPage() {
           <input
             type="text"
             required
+            maxLength={100}
             value={form.fullName}
             onChange={(event) =>
               setForm((current) => ({ ...current, fullName: event.target.value }))
@@ -98,6 +113,7 @@ export default function RegisterPage() {
           <input
             type="email"
             required
+            maxLength={255}
             value={form.email}
             onChange={(event) =>
               setForm((current) => ({ ...current, email: event.target.value }))
@@ -112,7 +128,7 @@ export default function RegisterPage() {
           <input
             type="password"
             required
-            minLength={6}
+            autoComplete="new-password"
             value={form.password}
             onChange={(event) =>
               setForm((current) => ({ ...current, password: event.target.value }))
@@ -120,6 +136,7 @@ export default function RegisterPage() {
             className={inputClass}
             placeholder={t("register.passwordPlaceholder")}
           />
+          <PasswordRequirements password={form.password} />
         </div>
 
         <div>
@@ -127,7 +144,7 @@ export default function RegisterPage() {
           <input
             type="password"
             required
-            minLength={6}
+            autoComplete="new-password"
             value={form.confirmPassword}
             onChange={(event) =>
               setForm((current) => ({
@@ -138,6 +155,9 @@ export default function RegisterPage() {
             className={inputClass}
             placeholder={t("register.confirmPasswordPlaceholder")}
           />
+          {form.confirmPassword && !passwordsMatch && (
+            <p className="mt-1 text-xs text-coral">{t("register.passwordMismatch")}</p>
+          )}
         </div>
 
         <label className="flex items-start gap-2 rounded-xl bg-sand/60 p-3 text-sm text-ink/80 dark:bg-slate-900/60 dark:text-cream/80">
@@ -168,8 +188,8 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          disabled={loading || !acceptedPolicy}
-          className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:opacity-60 dark:bg-cream dark:text-ink dark:hover:bg-white"
+          disabled={!canSubmit}
+          className="w-full rounded-xl bg-ink px-4 py-3 text-sm font-semibold text-cream transition hover:bg-dusk disabled:cursor-not-allowed disabled:opacity-50 dark:bg-cream dark:text-ink dark:hover:bg-white"
         >
           {loading ? t("register.submitting") : t("register.submit")}
         </button>
