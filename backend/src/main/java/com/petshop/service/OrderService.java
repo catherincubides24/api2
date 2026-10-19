@@ -13,6 +13,8 @@ import com.petshop.entity.OrderStatus;
 import com.petshop.entity.PetOrder;
 import com.petshop.entity.Product;
 import com.petshop.entity.User;
+import com.petshop.event.OrderPaidEvent;
+import com.petshop.exception.BadRequestException;
 import com.petshop.exception.ForbiddenException;
 import com.petshop.exception.ResourceNotFoundException;
 import com.petshop.repository.PetOrderRepository;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,9 +36,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Orquesta la logica de negocio de pedidos y ventas.
- * Los metodos de lectura verifican que un CUSTOMER solo pueda ver su propia
- * informacion; un ADMIN tiene acceso completo (ver {@link #verifyOwnershipOrAdmin}).
+ * Lógica de negocio de pedidos y ventas.
+ * Defensa en profundidad: el controller ya valida permisos con @PreAuthorize y
+ * este servicio vuelve a verificar la propiedad (ver {@link #verifyOwnershipOrStaff}).
  */
 @Service
 @RequiredArgsConstructor
@@ -47,37 +50,43 @@ public class OrderService {
     private final PetOrderRepository petOrderRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher events;
+
+    // ---------------------------------------------------------------- lectura
 
     public PageResponse<OrderResponse> getAllOrdersPaged(int page, int size) {
-        Page<PetOrder> result = petOrderRepository.findAll(buildPageable(page, size));
-        return toPageResponse(result);
+        return toPageResponse(petOrderRepository.findAll(buildPageable(page, size)));
     }
 
     public PageResponse<OrderResponse> getOrdersByUserIdPaged(Long userId, int page, int size) {
-        verifyOwnershipOrAdmin(userId);
-        Page<PetOrder> result = petOrderRepository.findByUserId(userId, buildPageable(page, size));
-        return toPageResponse(result);
+        verifyOwnershipOrStaff(userId);
+        return toPageResponse(petOrderRepository.findByUserId(userId, buildPageable(page, size)));
     }
 
     public OrderResponse getOrderById(Long id) {
         PetOrder order = findOrderById(id);
-        verifyOwnershipOrAdmin(order.getUser().getId());
+        verifyOwnershipOrStaff(order.getUser().getId());
         return toResponse(order);
     }
 
     public TicketResponse getTicket(Long id) {
         PetOrder order = findOrderById(id);
-        verifyOwnershipOrAdmin(order.getUser().getId());
+        verifyOwnershipOrStaff(order.getUser().getId());
         return toTicket(order);
     }
 
+    // -------------------------------------------------------------- escritura
+
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
+        // Un CUSTOMER solo puede crear pedidos a su propio nombre.
+        verifyOwnershipOrStaff(request.userId());
         User user = findUserById(request.userId());
 
+        // El estado inicial lo fija siempre el servidor.
         PetOrder order = PetOrder.builder()
                 .user(user)
-                .status(request.status() == null ? OrderStatus.PENDING : request.status())
+                .status(OrderStatus.PENDING)
                 .paymentMethod(request.paymentMethod())
                 .build();
 
@@ -85,55 +94,65 @@ public class OrderService {
         order.setItems(new ArrayList<>(items));
         order.setTotalAmount(calculateTotal(items));
 
-        PetOrder savedOrder = petOrderRepository.save(order);
-        savedOrder.setTicketNumber(generateTicketNumber(savedOrder.getId()));
-        savedOrder = petOrderRepository.save(savedOrder);
-
-        return toResponse(savedOrder);
+        PetOrder saved = petOrderRepository.save(order);
+        saved.setTicketNumber(generateTicketNumber(saved.getId()));
+        return toResponse(petOrderRepository.save(saved));
     }
 
     @Transactional
     public OrderResponse updateOrder(Long id, OrderRequest request) {
         PetOrder order = findOrderById(id);
-        User user = findUserById(request.userId());
+        requirePending(order, "Solo se pueden editar pedidos pendientes");
 
-        order.setUser(user);
-        order.setStatus(request.status() == null ? order.getStatus() : request.status());
-        order.setPaymentMethod(request.paymentMethod() == null ? order.getPaymentMethod() : request.paymentMethod());
+        order.setUser(findUserById(request.userId()));
+        // El estado NO se modifica aquí: solo con updateOrderStatus / updatePayment.
+        if (request.paymentMethod() != null) {
+            order.setPaymentMethod(request.paymentMethod());
+        }
 
         order.getItems().clear();
         List<OrderItem> newItems = buildOrderItems(request.items(), order);
         order.getItems().addAll(newItems);
         order.setTotalAmount(calculateTotal(newItems));
 
-        PetOrder savedOrder = petOrderRepository.save(order);
-        return toResponse(savedOrder);
+        return toResponse(petOrderRepository.save(order));
     }
 
     @Transactional
     public OrderResponse updateOrderStatus(Long id, OrderStatusUpdateRequest request) {
         PetOrder order = findOrderById(id);
+        boolean becamePaid = order.getStatus() != OrderStatus.PAID && request.status() == OrderStatus.PAID;
+
         order.setStatus(request.status());
-        PetOrder savedOrder = petOrderRepository.save(order);
-        return toResponse(savedOrder);
+        PetOrder saved = petOrderRepository.save(order);
+
+        if (becamePaid) {
+            events.publishEvent(new OrderPaidEvent(saved.getId()));
+        }
+        return toResponse(saved);
     }
 
-    /** Usado por el modulo de ventas / gestion administrativa de pedidos para confirmar pagos en efectivo o transferencia. */
+    /** Confirmación de pagos en efectivo/transferencia (ADMIN y EMPLOYEE). */
     @Transactional
     public OrderResponse updatePayment(Long id, PaymentUpdateRequest request) {
         PetOrder order = findOrderById(id);
         order.setPaymentMethod(request.paymentMethod());
+
         if (request.markAsPaid()) {
+            requirePending(order, "Solo se pueden marcar como pagados los pedidos pendientes");
             order.setStatus(OrderStatus.PAID);
         }
-        PetOrder savedOrder = petOrderRepository.save(order);
-        return toResponse(savedOrder);
+
+        PetOrder saved = petOrderRepository.save(order);
+        if (request.markAsPaid()) {
+            events.publishEvent(new OrderPaidEvent(saved.getId())); // Observer
+        }
+        return toResponse(saved);
     }
 
     @Transactional
     public void deleteOrder(Long id) {
-        PetOrder order = findOrderById(id);
-        petOrderRepository.delete(Objects.requireNonNull(order));
+        petOrderRepository.delete(Objects.requireNonNull(findOrderById(id)));
     }
 
     // ---------------------------------------------------------------- helpers
@@ -141,13 +160,12 @@ public class OrderService {
     private PageRequest buildPageable(int page, int size) {
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        // El orden lo fija el servidor: el cliente no puede ordenar por campos internos.
         return PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     private PageResponse<OrderResponse> toPageResponse(Page<PetOrder> pageResult) {
-        List<OrderResponse> content = pageResult.getContent().stream()
-                .map(this::toResponse)
-                .toList();
+        List<OrderResponse> content = pageResult.getContent().stream().map(this::toResponse).toList();
         return new PageResponse<>(
                 content,
                 pageResult.getNumber(),
@@ -161,15 +179,27 @@ public class OrderService {
         return "HS-" + String.format("%06d", orderId);
     }
 
+    private void requirePending(PetOrder order, String message) {
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new BadRequestException(message);
+        }
+    }
+
     private List<OrderItem> buildOrderItems(List<OrderItemRequest> itemRequests, PetOrder order) {
         return itemRequests.stream()
                 .map(itemRequest -> {
                     Product product = findProductById(itemRequest.productId());
+                    if (!Boolean.TRUE.equals(product.getActive())) {
+                        throw new BadRequestException("El producto '" + product.getName() + "' no está disponible");
+                    }
+                    if (product.getStock() < itemRequest.quantity()) {
+                        throw new BadRequestException("Stock insuficiente para '" + product.getName() + "'");
+                    }
                     return OrderItem.builder()
                             .order(order)
                             .product(product)
                             .quantity(itemRequest.quantity())
-                            .unitPrice(product.getPrice())
+                            .unitPrice(product.getPrice()) // el precio lo pone el servidor, nunca el cliente
                             .build();
                 })
                 .toList();
@@ -196,20 +226,16 @@ public class OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id " + id));
     }
 
-    /**
-     * Garantiza que un CUSTOMER solo pueda ver su propia informacion (pedidos, tickets).
-     * Los administradores tienen acceso completo. Evita que un cliente consulte
-     * pedidos o datos de otro usuario cambiando el id en la URL.
-     */
-    private void verifyOwnershipOrAdmin(Long targetUserId) {
+    /** ADMIN y EMPLOYEE acceden a todo; un CUSTOMER solo a lo suyo. */
+    private void verifyOwnershipOrStaff(Long targetUserId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new ForbiddenException("No autenticado");
         }
 
         boolean isStaff = authentication.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN")
-                        || authority.getAuthority().equals("ROLE_EMPLOYEE"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_EMPLOYEE"));
         if (isStaff) {
             return;
         }
@@ -218,12 +244,12 @@ public class OrderService {
                 .orElseThrow(() -> new ForbiddenException("No autenticado"));
 
         if (!currentUser.getId().equals(targetUserId)) {
-            throw new ForbiddenException("No tienes permiso para acceder a esta informacion");
+            throw new ForbiddenException("No tienes permiso para acceder a esta información");
         }
     }
 
-    private OrderResponse toResponse(PetOrder order) {
-        List<OrderItemResponse> itemResponses = order.getItems().stream()
+    private List<OrderItemResponse> toItemResponses(PetOrder order) {
+        return order.getItems().stream()
                 .map(item -> new OrderItemResponse(
                         item.getProduct().getId(),
                         item.getProduct().getName(),
@@ -232,7 +258,9 @@ public class OrderService {
                         item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
                 ))
                 .toList();
+    }
 
+    private OrderResponse toResponse(PetOrder order) {
         return new OrderResponse(
                 order.getId(),
                 order.getUser().getId(),
@@ -242,21 +270,11 @@ public class OrderService {
                 order.getTicketNumber(),
                 order.getTotalAmount(),
                 order.getCreatedAt(),
-                itemResponses
+                toItemResponses(order)
         );
     }
 
     private TicketResponse toTicket(PetOrder order) {
-        List<OrderItemResponse> itemResponses = order.getItems().stream()
-                .map(item -> new OrderItemResponse(
-                        item.getProduct().getId(),
-                        item.getProduct().getName(),
-                        item.getUnitPrice(),
-                        item.getQuantity(),
-                        item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
-                ))
-                .toList();
-
         return new TicketResponse(
                 order.getTicketNumber(),
                 order.getId(),
@@ -266,7 +284,7 @@ public class OrderService {
                 order.getUser().getEmail(),
                 order.getStatus(),
                 order.getPaymentMethod(),
-                itemResponses,
+                toItemResponses(order),
                 order.getTotalAmount()
         );
     }

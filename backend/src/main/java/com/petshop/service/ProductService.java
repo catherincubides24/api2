@@ -18,11 +18,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public List<ProductResponse> getPublicProducts() {
-        return productRepository.findByActiveTrue()
-                .stream()
-                .map(this::toResponse)
-                .toList();
+    
+    public List<ProductResponse> getPublicProducts(String search) {
+    List<Product> products = (search == null || search.isBlank())
+            ? productRepository.findByActiveTrue()
+            : productRepository.findByActiveTrueAndNameContainingIgnoreCase(search.trim());
+    return products.stream().map(this::toResponse).toList();
     }
 
     public List<ProductResponse> getAllProducts() {

@@ -1,4 +1,4 @@
-package com.petshop.controller;
+package com.petshop.dto.controller;
 
 import com.petshop.dto.backup.DatabaseInfoDto;
 import com.petshop.dto.backup.RestoreResponse;

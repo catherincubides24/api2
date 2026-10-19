@@ -63,4 +63,7 @@ public class PetOrder {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(unique = true)
+    private String paypalOrderId;
 }

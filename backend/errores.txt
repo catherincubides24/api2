@@ -1,0 +1,12 @@
+Picked up JAVA_TOOL_OPTIONS: -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8
+[ERROR] COMPILATION ERROR : 
+[ERROR] /C:/Users/cathe/Documents/GitHub/api2/backend/src/main/java/com/petshop/dto/controller/OrderController.java:[98,11] reached end of file while parsing
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile (default-compile) on project petshop-backend: Compilation failure
+[ERROR] /C:/Users/cathe/Documents/GitHub/api2/backend/src/main/java/com/petshop/dto/controller/OrderController.java:[98,11] reached end of file while parsing
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

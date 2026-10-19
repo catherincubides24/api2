@@ -8,16 +8,20 @@ spring:
     time-zone: America/Bogota
   servlet:
     multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:10MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:10MB}
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/petshop_db}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
+  data:
+    web:
+      pageable:
+        max-page-size: 50
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: true
@@ -25,27 +29,30 @@ spring:
           time_zone: America/Bogota
 
 jwt:
-  secret: ${JWT_SECRET:bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfcGV0c2hvcF9hcGlfZm9yX3VuaXZlcnNpdHlfcHJvamVjdF8xMjM0NTY=}
+  secret: ${JWT_SECRET}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
 
-
 paypal:
-  client-id: ${PAYPAL_CLIENT_ID:TU_CLIENT_ID_AQUI}
-  client-secret: ${PAYPAL_CLIENT_SECRET:TU_SECRET_AQUI}
+  client-id: ${PAYPAL_CLIENT_ID}
+  client-secret: ${PAYPAL_CLIENT_SECRET}
   mode: ${PAYPAL_MODE:sandbox}
 
 springdoc:
   swagger-ui:
-    enabled: true
+    enabled: ${SWAGGER_ENABLED:false}
     path: /swagger-ui.html
   api-docs:
-    enabled: true
+    enabled: ${SWAGGER_ENABLED:false}
     path: /api-docs
 
 google:
-  client-id: ${GOOGLE_CLIENT_ID:631274127830-m72o0d2fns4hisvpt76fo0irhqbpf227.apps.googleusercontent.com}
+  client-id: ${GOOGLE_CLIENT_ID}
 
 app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  admin:
+    initial-password: ${ADMIN_INITIAL_PASSWORD}
   session:
     policy: ${SESSION_POLICY:BLOCK}
     inactivity-timeout: ${SESSION_INACTIVITY_TIMEOUT:2m}

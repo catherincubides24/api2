@@ -1,42 +1,64 @@
 package com.petshop.exception;
- 
+
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
- 
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
- 
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         return buildError(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), null);
     }
- 
+
     @ExceptionHandler({BadRequestException.class, IllegalArgumentException.class})
     public ResponseEntity<ApiError> handleBadRequest(RuntimeException ex, HttpServletRequest request) {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), null);
     }
- 
+
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ApiError> handleForbidden(ForbiddenException ex, HttpServletRequest request) {
         return buildError(HttpStatus.FORBIDDEN, ex.getMessage(), request.getRequestURI(), null);
     }
- 
+
+    // Lo lanza @PreAuthorize. Sin este handler, handleGeneric lo convertía en un 500.
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.FORBIDDEN, "No tienes permiso para realizar esta acción",
+                request.getRequestURI(), null);
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         return buildError(HttpStatus.UNAUTHORIZED, "Credenciales inválidas", request.getRequestURI(), null);
     }
- 
+
+    @ExceptionHandler(SessionConflictException.class)
+    public ResponseEntity<ApiError> handleSessionConflict(SessionConflictException ex, HttpServletRequest request) {
+        return buildError(
+                HttpStatus.CONFLICT,
+                ex.getMessage(),
+                request.getRequestURI(),
+                Map.of("code", SessionErrorCodes.SESSION_ACTIVE_ELSEWHERE)
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         Map<String, String> details = new HashMap<>();
@@ -45,7 +67,18 @@ public class GlobalExceptionHandler {
         }
         return buildError(HttpStatus.BAD_REQUEST, "Error de validación", request.getRequestURI(), details);
     }
- 
+
+    // Parámetros de ruta/query inválidos (@Positive, @Min, @Max), JSON mal formado, tipos incorrectos.
+    @ExceptionHandler({
+            ConstraintViolationException.class,
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class,
+            MissingServletRequestParameterException.class
+    })
+    public ResponseEntity<ApiError> handleMalformed(Exception ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, "Solicitud inválida", request.getRequestURI(), null);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request) {
         log.error("Error inesperado en {}", request.getRequestURI(), ex);
@@ -57,16 +90,6 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(SessionConflictException.class)
-public ResponseEntity<ApiError> handleSessionConflict(SessionConflictException ex, HttpServletRequest request) {
-    return buildError(
-            HttpStatus.CONFLICT,
-            ex.getMessage(),
-            request.getRequestURI(),
-            Map.of("code", SessionErrorCodes.SESSION_ACTIVE_ELSEWHERE)
-    );
-}
- 
     private ResponseEntity<ApiError> buildError(
             HttpStatus status,
             String message,
@@ -84,4 +107,3 @@ public ResponseEntity<ApiError> handleSessionConflict(SessionConflictException e
         return ResponseEntity.status(status).body(error);
     }
 }
- 

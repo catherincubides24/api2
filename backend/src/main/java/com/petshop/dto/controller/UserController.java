@@ -1,4 +1,4 @@
-package com.petshop.controller;
+package com.petshop.dto.controller;
 
 import com.petshop.dto.user.UserCreateRequest;
 import com.petshop.dto.user.UserResponse;

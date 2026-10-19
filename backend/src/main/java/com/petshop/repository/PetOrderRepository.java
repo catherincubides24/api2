@@ -13,4 +13,7 @@ public interface PetOrderRepository
     Page<PetOrder> findByUserId(Long userId, Pageable pageable);
 
     Optional<PetOrder> findByTicketNumber(String ticketNumber);
+
+    // Lo usa OrderSecurity para verificar que el pedido pertenece al usuario autenticado
+    boolean existsByIdAndUserEmail(Long id, String email);
 }

@@ -1,4 +1,4 @@
-package com.petshop.controller;
+package com.petshop.dto.controller;
 
 import com.petshop.dto.report.ExportedReport;
 import com.petshop.dto.report.ReportFilter;
