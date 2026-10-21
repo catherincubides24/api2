@@ -20,10 +20,11 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 10
-    env:
+        env:
       DB_URL: jdbc:postgresql://localhost:5432/petshop_test
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
+      JPA_DDL_AUTO: create-drop
       JWT_SECRET: dGVzdF9zZWNyZXRfa2V5X3Rlc3Rfc2VjcmV0X2tleV90ZXN0X3NlY3JldF9rZXk=
       PAYPAL_CLIENT_ID: dummy
       PAYPAL_CLIENT_SECRET: dummy
