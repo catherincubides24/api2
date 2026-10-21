@@ -27,7 +27,7 @@ void emailInvalidoDevuelve400() throws Exception {
     mvc.perform(post("/api/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-        {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"123"}
+        {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"Fabulosa-Clave-2026!"}
         """))
         .andExpect(status().isBadRequest());
 }
@@ -37,7 +37,7 @@ void passwordCortaDevuelve400() throws Exception {
     mvc.perform(post("/api/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-                {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"123"}
+                {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"Fabulosa-Clave-2026!"}
             """))
         .andExpect(status().isBadRequest());
 }
@@ -65,7 +65,7 @@ void registroSinRolCreaCustomer() throws Exception {
     mvc.perform(post("/api/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-                {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Abc12345!"}
+                {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Fabulosa-Clave-2026!"}
             """))
         .andDo(print())
         .andExpect(status().is2xxSuccessful());
