@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class AuthRegistrationTest {
 
+    private static final Object PASSWORD_VALIDA = null;
     @Autowired MockMvc mvc;
     @Autowired UserRepository userRepository;
 
