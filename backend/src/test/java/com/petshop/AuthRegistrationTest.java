@@ -18,29 +18,31 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class AuthRegistrationTest {
 
-    private static final String PASSWORD_VALIDA = "Abc12345!";
-    @Autowired MockMvc mvc;
-    @Autowired UserRepository userRepository;
+    @Autowired
+    MockMvc mvc;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Test
-void emailInvalidoDevuelve400() throws Exception {
-    mvc.perform(post("/api/auth/register")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-        {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"Fabulosa-Clave-2026!"}
-        """))
-        .andExpect(status().isBadRequest());
-}
+    void emailInvalidoDevuelve400() throws Exception {
+        mvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"fullName":"Ana Corta","email":"ana.cortaexample.com","password":"Fabulosa-Clave-2026!"}
+                    """))
+            .andExpect(status().isBadRequest());
+    }
 
     @Test
-void passwordCortaDevuelve400() throws Exception {
-    mvc.perform(post("/api/auth/register")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"Fabulosa-Clave-2026!"}
-            """))
-        .andExpect(status().isBadRequest());
-}
+    void passwordCortaDevuelve400() throws Exception {
+        mvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"Abc1!"}
+                    """))
+            .andExpect(status().isBadRequest());
+    }
 
     // Un registro público NUNCA debe poder crear administradores.
     @Test
@@ -49,7 +51,7 @@ void passwordCortaDevuelve400() throws Exception {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {"fullName":"Bosy","email":"bosy@test.com","password":"Segura-Clave-2026!","role":"ADMIN"}
-                """))
+                    """))
             .andDo(print())
             .andExpect(status().is2xxSuccessful());
 
@@ -61,18 +63,19 @@ void passwordCortaDevuelve400() throws Exception {
     }
 
     @Test
-void registroSinRolCreaCustomer() throws Exception {
-    mvc.perform(post("/api/auth/register")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("""
-                {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Fabulosa-Clave-2026!"}
-            """))
-        .andDo(print())
-        .andExpect(status().is2xxSuccessful());
+    void registroSinRolCreaCustomer() throws Exception {
+        mvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Fabulosa-Clave-2026!"}
+                    """))
+            .andDo(print())
+            .andExpect(status().is2xxSuccessful());
 
-    Role rol = userRepository.findByEmail("ana.prueba@example.com")
-            .orElseThrow(() -> new AssertionError("El usuario no se guardó"))
-            .getRole();
-    assertEquals(Role.CUSTOMER, rol);
-}
+        Role rol = userRepository.findByEmail("ana.prueba@example.com")
+                .orElseThrow(() -> new AssertionError("El usuario no se guardó"))
+                .getRole();
+
+        assertEquals(Role.CUSTOMER, rol);
+    }
 }
