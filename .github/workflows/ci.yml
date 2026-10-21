@@ -25,6 +25,9 @@ jobs:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       JPA_DDL_AUTO: create-drop
+      ADMIN_INITIAL_PASSWORD: Test-Only-Admin-Pass-123!
+      GOOGLE_CLIENT_ID: dummy-google-client-id
+      GOOGLE_CLIENT_SECRET: dummy-google-client-secret
       JWT_SECRET: dGVzdF9zZWNyZXRfa2V5X3Rlc3Rfc2VjcmV0X2tleV90ZXN0X3NlY3JldF9rZXk=
       PAYPAL_CLIENT_ID: dummy
       PAYPAL_CLIENT_SECRET: dummy
