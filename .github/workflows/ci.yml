@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-    backend:
+  backend:
     name: Backend (Java 17 + Maven)
     runs-on: ubuntu-latest
     services:
@@ -45,7 +45,7 @@ jobs:
           name: surefire-reports
           path: backend/target/surefire-reports
 
-    frontend:
+  frontend:
     name: Frontend (Node 20 + Vite)
     runs-on: ubuntu-latest
     steps:
@@ -63,7 +63,7 @@ jobs:
         run: npm audit --audit-level=high
         working-directory: frontend
 
-    codeql:
+  codeql:
     name: Análisis de seguridad (CodeQL)
     runs-on: ubuntu-latest
     permissions:
