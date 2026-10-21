@@ -36,7 +36,7 @@ class AuthRegistrationTest {
         mvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"fullName":"Ana","email":"ana@test.com","password":"123"}
+                    {"fullName":"Ana","email":"ana@test.com","password":"Segura-Clave-2026!1"}
                 """))
             .andExpect(status().isBadRequest());
     }
@@ -47,12 +47,12 @@ class AuthRegistrationTest {
         mvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"fullName":"Mala","email":"mala@test.com","password":"Abc12345!","role":"ADMIN"}
+                    {"fullName":"Bosy","email":"bosy@test.com","password":"Segura-Clave-2026!","role":"ADMIN"}
                 """))
             .andDo(print())
             .andExpect(status().is2xxSuccessful());
 
-        Role rolGuardado = userRepository.findByEmail("mala@test.com")
+        Role rolGuardado = userRepository.findByEmail("bosy@test.com")
                 .orElseThrow(() -> new AssertionError("El usuario no se guardó"))
                 .getRole();
 
@@ -64,7 +64,7 @@ void registroSinRolCreaCustomer() throws Exception {
     mvc.perform(post("/api/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-                {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Abc12345!"}
+                {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Segura-Clave-2026!2"}
             """))
         .andDo(print())
         .andExpect(status().is2xxSuccessful());
