@@ -63,7 +63,7 @@ jobs:
         run: npm audit --audit-level=high
         working-directory: frontend
 
-  codeql:
+    codeql:
     name: Análisis de seguridad (CodeQL)
     runs-on: ubuntu-latest
     permissions:
