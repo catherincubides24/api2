@@ -26,7 +26,7 @@ class AuthRegistrationTest {
         mvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"fullName":"Ana","email":"no-es-email","password":"123456","role":"CUSTOMER"}
+                    {"fullName":"Ana","email":"no-es-email","password":"Abc12345!"}
                 """))
            .andExpect(status().isBadRequest());
     }
@@ -36,7 +36,7 @@ class AuthRegistrationTest {
         mvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"fullName":"Ana","email":"ana@test.com","password":"123","role":"CUSTOMER"}
+                    {"fullName":"Ana","email":"ana@test.com","password":"123"}
                 """))
            .andExpect(status().isBadRequest());
     }
@@ -49,7 +49,7 @@ class AuthRegistrationTest {
                 .content("""
                     {"fullName":"Mala","email":"mala@test.com","password":"Abc12345!","role":"ADMIN"}
                 """))
-           .andDo(print())                       // imprime request y response en el log
+           .andDo(print())
            .andExpect(status().is2xxSuccessful());
 
         Role rolGuardado = userRepository.findByEmail("mala@test.com")
