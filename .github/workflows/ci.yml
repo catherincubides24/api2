@@ -7,7 +7,7 @@ on:
 
 jobs:
   backend:
-    name: Backend (Java 17 + Maven)
+    name: Backend (Java 25 + Maven)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 25
           cache: maven
       - name: Compilar y correr pruebas
         working-directory: backend
