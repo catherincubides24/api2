@@ -36,7 +36,7 @@ class AuthRegistrationTest {
         mvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"fullName":"Ana","email":"ana@test.com","password":"Segura-Clave-2026!1"}
+                    {"fullName":"Ana","email":"ana@test.com","password":"123"}
                 """))
             .andExpect(status().isBadRequest());
     }
@@ -64,7 +64,7 @@ void registroSinRolCreaCustomer() throws Exception {
     mvc.perform(post("/api/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-                {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Segura-Clave-2026!2"}
+                {"fullName":"Ana Prueba","email":"ana.prueba@example.com","password":"Abc12345!"}
             """))
         .andDo(print())
         .andExpect(status().is2xxSuccessful());
