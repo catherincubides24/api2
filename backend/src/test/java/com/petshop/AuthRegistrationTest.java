@@ -27,8 +27,8 @@ void emailInvalidoDevuelve400() throws Exception {
     mvc.perform(post("/api/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-            {"fullName":"Ana Email","email":"no-es-email","password":"Abc12345!"}
-            """)
+        {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"123"}
+        """))
         .andExpect(status().isBadRequest());
 }
 
