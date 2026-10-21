@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class AuthRegistrationTest {
 
-    private static final Object PASSWORD_VALIDA = null;
+    private static final String PASSWORD_VALIDA = "Abc12345!";
     @Autowired MockMvc mvc;
     @Autowired UserRepository userRepository;
 
@@ -27,8 +27,8 @@ void emailInvalidoDevuelve400() throws Exception {
     mvc.perform(post("/api/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
-                {"fullName":"Ana Email","email":"no-es-email","password":"%s"}
-            """.formatted(PASSWORD_VALIDA)))
+            {"fullName":"Ana Email","email":"no-es-email","password":"Abc12345!"}
+            """)
         .andExpect(status().isBadRequest());
 }
 
