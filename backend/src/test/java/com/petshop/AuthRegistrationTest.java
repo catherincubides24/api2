@@ -22,24 +22,24 @@ class AuthRegistrationTest {
     @Autowired UserRepository userRepository;
 
     @Test
-    void emailInvalidoDevuelve400() throws Exception {
-        mvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {"fullName":"Ana","email":"no-es-email","password":"Abc12345!"}
-                """))
-            .andExpect(status().isBadRequest());
-    }
+void emailInvalidoDevuelve400() throws Exception {
+    mvc.perform(post("/api/auth/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {"fullName":"Ana Email","email":"no-es-email","password":"%s"}
+            """.formatted(PASSWORD_VALIDA)))
+        .andExpect(status().isBadRequest());
+}
 
     @Test
-    void passwordCortaDevuelve400() throws Exception {
-        mvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {"fullName":"Ana","email":"ana@test.com","password":"123"}
-                """))
-            .andExpect(status().isBadRequest());
-    }
+void passwordCortaDevuelve400() throws Exception {
+    mvc.perform(post("/api/auth/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {"fullName":"Ana Corta","email":"ana.corta@example.com","password":"123"}
+            """))
+        .andExpect(status().isBadRequest());
+}
 
     // Un registro público NUNCA debe poder crear administradores.
     @Test
