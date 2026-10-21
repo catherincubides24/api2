@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  backend:
+    backend:
     name: Backend (Java 17 + Maven)
     runs-on: ubuntu-latest
     services:
@@ -20,7 +20,7 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U postgres"
           --health-interval 5s --health-timeout 5s --health-retries 10
-        env:
+    env:
       DB_URL: jdbc:postgresql://localhost:5432/petshop_test
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 25
+          java-version: 17
           cache: maven
       - name: Compilar y correr pruebas
         working-directory: backend
@@ -45,7 +45,7 @@ jobs:
           name: surefire-reports
           path: backend/target/surefire-reports
 
-  frontend:
+    frontend:
     name: Frontend (Node 20 + Vite)
     runs-on: ubuntu-latest
     steps:
