@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Manual Técnico para Desarrollo de Software - Huellitas Shop</title>
+  <style>
+    /* ============================================================
+       PALETA INSTITUCIONAL HUELLITAS SHOP (Tailwind Exact Colors)
+       --cream: #fffaf3 (Fondo marfil cálido)
+       --sand:  #f6ecdd (Bordes y superficies neutras)
+       --ink:   #1d2838 (Texto principal oscuro)
+       --dusk:  #2c4b66 (Azul anochecer / subtítulos)
+       --coral: #ff6b4a (Acento primario vibrante)
+       --mint:  #18b5a4 (Menta / turquesa de balance)
+       --peach: #ffd7b5 (Melocotón / degradados)
+       ============================================================ */
+    :root {
+      --cream: #fffaf3;
+      --sand: #f6ecdd;
+      --ink: #1d2838;
+      --dusk: #2c4b66;
+      --coral: #ff6b4a;
+      --mint: #18b5a4;
+      --peach: #ffd7b5;
+      --white: #ffffff;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 18mm 15mm 20mm 15mm;
+      @bottom-right {
+        content: counter(page);
+        font-family: 'Sora', 'Segoe UI', Arial, sans-serif;
+        font-size: 8pt;
+        color: #2c4b66;
+      }
+      @bottom-left {
+        content: "Huellitas Shop | Manual Técnico de Software";
+        font-family: 'Sora', 'Segoe UI', Arial, sans-serif;
+        font-size: 8pt;
+        color: #ff6b4a;
+        font-weight: 600;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Sora', 'Segoe UI', Arial, -apple-system, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.55;
+      color: var(--ink);
+      background-color: var(--cream);
+    }
+
+    .document-container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+      color: var(--ink);
+      margin-top: 0;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: 26pt;
+      color: var(--ink);
+      margin-bottom: 8pt;
+    }
+
+    h2 {
+      font-size: 15pt;
+      color: var(--dusk);
+      border-bottom: 2px solid var(--sand);
+      padding-bottom: 4pt;
+      margin-top: 18pt;
+      margin-bottom: 8pt;
+      display: flex;
+      align-items: center;
+      gap: 6pt;
+    }
+
+    h2 .section-num {
+      background: var(--coral);
+      color: var(--white);
+      font-family: 'Sora', 'Segoe UI', Arial, sans-serif;
+      font-size: 9.5pt;
+      font-weight: 700;
+      padding: 2pt 7pt;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      color: var(--coral);
+      margin-top: 12pt;
+      margin-bottom: 4pt;
+    }
+
+    h4 {
+      font-size: 10pt;
+      color: var(--dusk);
+      margin-top: 8pt;
+      margin-bottom: 2pt;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 6pt;
+      text-align: justify;
+    }
+
+    /* ============================================================
+       PORTADA (COVER PAGE)
+       ============================================================ */
+    .cover-page {
+      min-height: 94vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      page-break-after: always;
+      break-after: page;
+      padding: 15pt 0 10pt 0;
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 12pt;
+      padding-bottom: 12pt;
+      border-bottom: 1.5pt solid var(--sand);
+    }
+
+    .logo-badge {
+      width: 44pt;
+      height: 44pt;
+      background: var(--ink);
+      border-radius: 12pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      box-shadow: 0 10px 20px -5px rgba(29, 40, 56, 0.3);
+    }
+
+    .brand-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 22pt;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .brand-slogan {
+      font-size: 9pt;
+      color: var(--coral);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-top: 3pt;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, #ff6b4a 0%, #ffd7b5 50%, #18b5a4 100%);
+      border-radius: 18pt;
+      padding: 26pt;
+      color: var(--ink);
+      box-shadow: 0 15px 35px -10px rgba(255, 107, 74, 0.35);
+      margin: 15pt 0;
+    }
+
+    .hero-eyebrow {
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 800;
+      color: rgba(29, 40, 56, 0.8);
+      margin-bottom: 8pt;
+    }
+
+    .hero-title {
+      font-size: 30pt;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 12pt;
+    }
+
+    .hero-desc {
+      font-size: 10.5pt;
+      color: rgba(29, 40, 56, 0.9);
+      max-width: 95%;
+      line-height: 1.6;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10pt;
+      margin-top: 8pt;
+    }
+
+    .meta-card {
+      background: var(--white);
+      border: 1.5pt solid var(--sand);
+      border-radius: 10pt;
+      padding: 9pt 12pt;
+      box-shadow: 0 4pt 12pt -4pt rgba(29, 40, 56, 0.08);
+    }
+
+    .meta-label {
+      font-size: 7.5pt;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--dusk);
+      margin-bottom: 2pt;
+    }
+
+    .meta-value {
+      font-size: 9.5pt;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .palette-strip {
+      display: flex;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 14pt;
+      box-shadow: 0 4pt 10pt -2pt rgba(0,0,0,0.1);
+      border: 2pt solid var(--white);
+    }
+
+    .palette-item {
+      flex: 1;
+      height: 16pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 6.5pt;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* ============================================================
+       TABLAS Y ELEMENTOS GRÁFICOS
+       ============================================================ */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8pt 0 10pt 0;
+      font-size: 8.5pt;
+      background: var(--white);
+      border-radius: 8pt;
+      overflow: hidden;
+      box-shadow: 0 2pt 8pt -2pt rgba(29, 40, 56, 0.06);
+      page-break-inside: avoid;
+    }
+
+    th {
+      background: var(--dusk);
+      color: var(--white);
+      text-align: left;
+      padding: 6pt 8pt;
+      font-weight: 600;
+      font-size: 7.8pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 5pt 8pt;
+      border-bottom: 1px solid var(--sand);
+      color: var(--ink);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(246, 236, 221, 0.25);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 1.5pt 5pt;
+      border-radius: 4pt;
+      font-size: 7pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-get { background: rgba(24, 181, 164, 0.15); color: #0d8275; border: 1px solid rgba(24, 181, 164, 0.4); }
+    .badge-post { background: rgba(255, 107, 74, 0.15); color: #d64724; border: 1px solid rgba(255, 107, 74, 0.4); }
+    .badge-put { background: rgba(44, 75, 102, 0.15); color: #1e364a; border: 1px solid rgba(44, 75, 102, 0.4); }
+    .badge-patch { background: rgba(255, 215, 181, 0.5); color: #9c5517; border: 1px solid rgba(255, 215, 181, 0.8); }
+    .badge-delete { background: rgba(239, 68, 68, 0.15); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .badge-admin { background: var(--coral); color: var(--white); }
+    .badge-staff { background: var(--dusk); color: var(--white); }
+    .badge-public { background: var(--mint); color: var(--white); }
+
+    pre, code {
+      font-family: 'Consolas', 'Courier New', monospace;
+    }
+
+    pre {
+      background: #182230;
+      color: #e2e8f0;
+      padding: 8pt 10pt;
+      border-radius: 7pt;
+      font-size: 7.5pt;
+      line-height: 1.45;
+      overflow-x: auto;
+      border-left: 3pt solid var(--coral);
+      margin: 6pt 0 8pt 0;
+      page-break-inside: avoid;
+    }
+
+    code {
+      background: var(--sand);
+      color: var(--dusk);
+      padding: 1pt 3pt;
+      border-radius: 3pt;
+      font-size: 8pt;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .callout {
+      border-radius: 8pt;
+      padding: 8pt 12pt;
+      margin: 8pt 0;
+      font-size: 8.5pt;
+      page-break-inside: avoid;
+    }
+
+    .callout-info {
+      background: rgba(24, 181, 164, 0.08);
+      border-left: 3.5pt solid var(--mint);
+      color: var(--ink);
+    }
+
+    .callout-warning {
+      background: rgba(255, 107, 74, 0.08);
+      border-left: 3.5pt solid var(--coral);
+      color: var(--ink);
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: var(--dusk);
+      margin-bottom: 2pt;
+    }
+
+    .diagram-card {
+      background: var(--white);
+      border: 1.5pt solid var(--sand);
+      border-radius: 10pt;
+      padding: 10pt;
+      margin: 10pt 0;
+      text-align: center;
+      box-shadow: 0 4pt 12pt -4pt rgba(29, 40, 56, 0.05);
+      page-break-inside: avoid;
+    }
+
+    .diagram-caption {
+      font-size: 8pt;
+      font-weight: 600;
+      color: var(--dusk);
+      margin-top: 6pt;
+    }
+
+    ul, ol {
+      margin-top: 2pt;
+      margin-bottom: 6pt;
+      padding-left: 16pt;
+    }
+
+    li {
+      margin-bottom: 2pt;
+    }
+
+    .module-card {
+      background: var(--white);
+      border: 1px solid var(--sand);
+      border-top: 3pt solid var(--coral);
+      border-radius: 8pt;
+      padding: 7pt 10pt;
+      margin-bottom: 7pt;
+      page-break-inside: avoid;
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3pt;
+    }
+
+    .module-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 10.5pt;
+      color: var(--dusk);
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+  </style>
+</head>
+<body>
+
+<div class="document-container">
+
+  <!-- ============================================================
+       PORTADA (SLIDES 1 & 5)
+       ============================================================ -->
+  <div class="cover-page">
+    <div class="brand-header">
+      <div class="logo-badge">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="7" r="2.5"/>
+          <circle cx="6.5" cy="10" r="2"/>
+          <circle cx="17.5" cy="10" r="2"/>
+          <circle cx="8" cy="16" r="2"/>
+          <circle cx="16" cy="16" r="2"/>
+          <path d="M12 11c-2.5 0-4.5 1.8-4.5 4 0 2.2 2 3 4.5 3s4.5-.8 4.5-3c0-2.2-2-4-4.5-4z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">Huellitas Shop</div>
+        <div class="brand-slogan">Cuidado y estilo para tu mascota &bull; Manual de Ingeniería</div>
+      </div>
+    </div>
+
+    <div class="hero-banner">
+      <div class="hero-eyebrow">DOCUMENTO TÉCNICO OFICIAL DE DESARROLLO DE SOFTWARE</div>
+      <div class="hero-title">Manual Técnico de Plataforma y Arquitectura</div>
+      <div class="hero-desc">
+        Guía integral sobre arquitectura desacoplada en capas, modelos de persistencia relacional,
+        contratos RESTful, integración con pasarelas de pago y proveedores de identidad, políticas
+        estrictas de ciberseguridad, orquestación contenerizada con Docker y despliegue continuo.
+      </div>
+    </div>
+
+    <div>
+      <div class="meta-grid">
+        <div class="meta-card">
+          <div class="meta-label">Proyecto</div>
+          <div class="meta-value">Huellitas Shop E-commerce Full Stack</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Versión Oficial</div>
+          <div class="meta-value">v1.0.0 &bull; Línea Base Producción</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Autor y Desarrollador</div>
+          <div class="meta-value">Rafael Orlando Dominguez Sierra</div>
+        </div>
+        <div class="meta-card">
+          <div class="meta-label">Fecha y Zona Horaria</div>
+          <div class="meta-value">23 de Octubre de 2026 &bull; America/Bogota</div>
+        </div>
+      </div>
+
+      <div class="palette-strip">
+        <div class="palette-item" style="background:#ff6b4a;">Coral #ff6b4a</div>
+        <div class="palette-item" style="background:#ffd7b5; color:#1d2838;">Peach #ffd7b5</div>
+        <div class="palette-item" style="background:#18b5a4;">Mint #18b5a4</div>
+        <div class="palette-item" style="background:#2c4b66;">Dusk #2c4b66</div>
+        <div class="palette-item" style="background:#1d2838;">Ink #1d2838</div>
+        <div class="palette-item" style="background:#f6ecdd; color:#1d2838;">Sand #f6ecdd</div>
+        <div class="palette-item" style="background:#fffaf3; color:#1d2838; border:1px solid #ddd;">Cream #fffaf3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CONTROL DE VERSIONES (SLIDE 5)
+       ============================================================ -->
+  <div class="page-break"></div>
+
+  <h2><span class="section-num">1</span> Portada y Control de Versiones</h2>
+
+  <p>El presente manual describe de manera técnica y rigurosa cómo está construido el sistema <strong>Huellitas Shop</strong>. Está orientado a desarrolladores, ingenieros de operaciones (DevOps), administradores de sistemas y futuros mantenedores del software.</p>
+
+  <h3>1.1. Historial de Cambios y Aprobación</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Versión</th>
+        <th>Fecha</th>
+        <th>Resumen del Cambio Realizado</th>
+        <th>Responsable</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>0.1.0</strong></td>
+        <td>17/09/2026</td>
+        <td>Definición inicial de arquitectura REST, entidades JPA y prototipo funcional frontend.</td>
+        <td>Equipo Huellitas</td>
+      </tr>
+      <tr>
+        <td><strong>0.5.0</strong></td>
+        <td>29/09/2026</td>
+        <td>Integración de Spring Security 6, JWT, pasarela PayPal y reserva atómica de stock.</td>
+        <td>Equipo Huellitas</td>
+      </tr>
+      <tr>
+        <td><strong>0.8.0</strong></td>
+        <td>04/10/2026</td>
+        <td>Implementación de política de sesión única, heartbeat y timeout por inactividad.</td>
+        <td>R. O. Dominguez S.</td>
+      </tr>
+      <tr>
+        <td><strong>0.9.0</strong></td>
+        <td>18/10/2026</td>
+        <td>Módulo de auditoría inmutable (`AuditLog`), backups SQL en caliente y reportes XLSX/PDF.</td>
+        <td>R. O. Dominguez S.</td>
+      </tr>
+      <tr>
+        <td><strong>1.0.0</strong></td>
+        <td>23/10/2026</td>
+        <td>Línea base de producción, pipeline CI/CD GitHub Actions con escaneo CodeQL SAST.</td>
+        <td>R. O. Dominguez S.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <div class="callout-title">Aprobación Técnica</div>
+    Documento validado y aprobado por la Dirección de Arquitectura y Aseguramiento de Calidad (QA) para la liberación de la versión 1.0.0 en el ambiente productivo.
+  </div>
+
+  <!-- ============================================================
+       DESCRIPCIÓN GENERAL DEL SISTEMA (SLIDE 6)
+       ============================================================ -->
+  <h2><span class="section-num">2</span> Descripción General del Sistema</h2>
+
+  <h3>2.1. ¿Para qué existe este sistema? (Pregunta Guía)</h3>
+  <p>
+    <strong>Huellitas Shop</strong> existe para digitalizar y optimizar de forma integral el proceso de comercialización y administración de suministros para mascotas (alimentos, juguetes, accesorios e higiene). El software unifica una experiencia de compra omnicanal rápida y responsiva para los dueños de mascotas con un centro de control operativo y financiero de alta precisión para los administradores y personal de la tienda.
+  </p>
+
+  <h3>2.2. Problemas que Resuelve</h3>
+  <ul>
+    <li><strong>Desincronización de Inventarios:</strong> Previene la venta de productos sin existencias mediante transacciones concurrentes gestionadas por Spring Data JPA con bloqueo a nivel de base de datos.</li>
+    <li><strong>Suplantación y Concurrencia Maliciosa:</strong> Impone una política de <em>sesión única activa</em> con latidos periódicos (`heartbeat`), invalidando accesos duplicados.</li>
+    <li><strong>Ceguera Financiera y Administrativa:</strong> Proporciona generación instantánea de balances y reportes exportables a Microsoft Excel (`.xlsx`) y Adobe PDF (`.pdf`).</li>
+    <li><strong>Falta de Trazabilidad Operativa:</strong> Almacena de forma inmutable un registro de auditoría (`logs`) ante cualquier cambio de precio, eliminación o actualización.</li>
+  </ul>
+
+  <h3>2.3. Usuarios Objetivo</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Rol / Actor</th>
+        <th>Nivel de Acceso</th>
+        <th>Responsabilidades y Operaciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-public">CUSTOMER</span></td>
+        <td>Cliente Externo</td>
+        <td>Exploración de catálogo, carrito reactivo, compras vía PayPal o efectivo, descarga de tickets `HS-XXXXXX`.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-staff">EMPLOYEE</span></td>
+        <td>Personal de Tienda</td>
+        <td>Gestión y despacho de órdenes, confirmación de pagos en efectivo/transferencia, consulta de reportes y catálogo total.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-admin">ADMIN</span></td>
+        <td>Administrador General</td>
+        <td>Control total: CRUD de productos y usuarios, generación y restauración de backups SQL, auditoría de eventos y analítica.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.4. Restricciones Técnicas</h3>
+  <ul>
+    <li><strong>Zona Horaria Obligatoria:</strong> <code>America/Bogota</code> configurada en JVM, Hibernate JDBC, Jackson JSON y visualización frontend.</li>
+    <li><strong>Moneda Oficial:</strong> Pesos Colombianos (<code>COP</code>) con formateo estandarizado de moneda sin decimales ambiguos.</li>
+    <li><strong>Política de Sesión:</strong> Máximo una sola sesión abierta por usuario. Si se inicia sesión en otro dispositivo o ventana, la previa se revoca (código <code>SESSION_REPLACED</code>).</li>
+    <li><strong>Inactividad:</strong> Expiración automática tras 2 minutos sin pulsaciones de actividad o heartbeat.</li>
+  </ul>
+
+  <!-- ============================================================
+       REQUISITOS TÉCNICOS (SLIDE 7)
+       ============================================================ -->
+  <div class="page-break"></div>
+  <h2><span class="section-num">3</span> Requisitos Técnicos</h2>
+
+  <h3>3.1. Requisitos de Hardware</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Recurso</th>
+        <th>Entorno de Desarrollo (Mínimo)</th>
+        <th>Servidor de Producción (Recomendado)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Procesador (CPU)</strong></td>
+        <td>4 núcleos x86_64 a 2.0 GHz (Intel Core i5 / AMD Ryzen 5)</td>
+        <td>4 a 8 núcleos virtuales (vCPU) a 2.5 GHz o superior</td>
+      </tr>
+      <tr>
+        <td><strong>Memoria RAM</strong></td>
+        <td>8 GB DDR4</td>
+        <td>16 GB DDR4/DDR5 con soporte ECC</td>
+      </tr>
+      <tr>
+        <td><strong>Almacenamiento</strong></td>
+        <td>20 GB SSD libres</td>
+        <td>80 GB NVMe SSD con snapshots de almacenamiento</td>
+      </tr>
+      <tr>
+        <td><strong>Red</strong></td>
+        <td>Acceso a Internet para descarga de librerías y SDKs</td>
+        <td>Enlace simétrico dedicado de 100 Mbps o superior</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.2. Requisitos de Software y Versiones</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Componente</th>
+        <th>Tecnología / Motor</th>
+        <th>Versión Exacta</th>
+        <th>Función en el Sistema</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Motor de Base de Datos</strong></td>
+        <td>PostgreSQL</td>
+        <td>16-Alpine</td>
+        <td>Base de datos relacional transaccional (ACID).</td>
+      </tr>
+      <tr>
+        <td><strong>Servidor Web & Proxy</strong></td>
+        <td>Nginx</td>
+        <td>1.27-Alpine</td>
+        <td>Servidor de estáticos y Reverse Proxy hacia la API REST.</td>
+      </tr>
+      <tr>
+        <td><strong>Lenguaje & Runtime Backend</strong></td>
+        <td>OpenJDK Java</td>
+        <td>Java 25 (LTS)</td>
+        <td>Plataforma de ejecución del servicio backend.</td>
+      </tr>
+      <tr>
+        <td><strong>Framework Backend</strong></td>
+        <td>Spring Boot</td>
+        <td>3.5.16</td>
+        <td>Framework MVC REST, Spring Security 6 y Spring Data JPA.</td>
+      </tr>
+      <tr>
+        <td><strong>Librería JWT</strong></td>
+        <td>JJWT (io.jsonwebtoken)</td>
+        <td>0.12.6</td>
+        <td>Firma, verificación y parsing de tokens HMAC-SHA.</td>
+      </tr>
+      <tr>
+        <td><strong>Framework Frontend</strong></td>
+        <td>React + Vite</td>
+        <td>React 18.3 / Vite 7.3</td>
+        <td>Interfaz SPA modular de alto rendimiento.</td>
+      </tr>
+      <tr>
+        <td><strong>Sistema de Estilos</strong></td>
+        <td>Tailwind CSS</td>
+        <td>4.3.3</td>
+        <td>Framework de utilidades con paleta corporativa y modo oscuro.</td>
+      </tr>
+      <tr>
+        <td><strong>Orquestación</strong></td>
+        <td>Docker & Docker Compose</td>
+        <td>Compose v2.24+</td>
+        <td>Aislamiento y despliegue unificado de contenedores.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================
+       ARQUITECTURA DEL SISTEMA (SLIDES 8 & 9)
+       ============================================================ -->
+  <h2><span class="section-num">4</span> Arquitectura del Sistema</h2>
+
+  <p>
+    El sistema implementa una arquitectura <strong>Cliente-Servidor Desacoplada</strong> basada en microcontenedores coordinados por Docker Compose. El frontend es una Single Page Application (SPA) que interactúa de manera 100% asíncrona mediante peticiones HTTP/JSON contra una API RESTful Stateless protegida por tokens Bearer JWT.
+  </p>
+
+  <!-- Vector SVG Architecture Diagram -->
+  <div class="diagram-card">
+    <svg width="100%" height="220" viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg" style="font-family:'Segoe UI', sans-serif;">
+      <!-- Background subtle tint -->
+      <rect width="680" height="220" rx="10" fill="#fffaf3"/>
+      
+      <!-- User / Browser Node -->
+      <rect x="20" y="75" width="120" height="70" rx="8" fill="#ffffff" stroke="#2c4b66" stroke-width="2"/>
+      <text x="80" y="102" font-size="11" font-weight="700" fill="#1d2838" text-anchor="middle">Usuario Web</text>
+      <text x="80" y="118" font-size="9" fill="#ff6b4a" text-anchor="middle">React 18 + PWA</text>
+      <text x="80" y="132" font-size="8" fill="#2c4b66" text-anchor="middle">:5173 (Host)</text>
+
+      <!-- Arrow 1 -->
+      <line x1="140" y1="110" x2="190" y2="110" stroke="#ff6b4a" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="165" y="103" font-size="8" fill="#d64724" text-anchor="middle">HTTP</text>
+
+      <!-- Nginx Reverse Proxy -->
+      <rect x="190" y="75" width="120" height="70" rx="8" fill="#ffffff" stroke="#ff6b4a" stroke-width="2"/>
+      <text x="250" y="102" font-size="11" font-weight="700" fill="#1d2838" text-anchor="middle">petshop-frontend</text>
+      <text x="250" y="118" font-size="9" fill="#18b5a4" text-anchor="middle">Nginx 1.27 Proxy</text>
+      <text x="250" y="132" font-size="8" fill="#2c4b66" text-anchor="middle">Proxy Pass /api</text>
+
+      <!-- Arrow 2 -->
+      <line x1="310" y1="110" x2="360" y2="110" stroke="#ff6b4a" stroke-width="2"/>
+      <text x="335" y="103" font-size="8" fill="#d64724" text-anchor="middle">REST</text>
+
+      <!-- Backend Node -->
+      <rect x="360" y="75" width="140" height="70" rx="8" fill="#ffffff" stroke="#18b5a4" stroke-width="2"/>
+      <text x="430" y="102" font-size="11" font-weight="700" fill="#1d2838" text-anchor="middle">petshop-backend</text>
+      <text x="430" y="118" font-size="9" fill="#ff6b4a" text-anchor="middle">Spring Boot 3.5</text>
+      <text x="430" y="132" font-size="8" fill="#2c4b66" text-anchor="middle">:8081 -> :8080</text>
+
+      <!-- Arrow 3 to DB -->
+      <line x1="500" y1="110" x2="540" y2="110" stroke="#18b5a4" stroke-width="2"/>
+      <text x="520" y="103" font-size="8" fill="#0d8275" text-anchor="middle">JDBC</text>
+
+      <!-- DB Node -->
+      <rect x="540" y="75" width="120" height="70" rx="8" fill="#ffffff" stroke="#2c4b66" stroke-width="2"/>
+      <text x="600" y="102" font-size="11" font-weight="700" fill="#1d2838" text-anchor="middle">petshop-db</text>
+      <text x="600" y="118" font-size="9" fill="#2c4b66" text-anchor="middle">PostgreSQL 16</text>
+      <text x="600" y="132" font-size="8" fill="#ff6b4a" text-anchor="middle">:5433 -> :5432</text>
+
+      <!-- External Services Upper Branch -->
+      <rect x="360" y="10" width="140" height="42" rx="6" fill="#fffaf3" stroke="#ffd7b5" stroke-width="1.5"/>
+      <text x="430" y="27" font-size="9" font-weight="700" fill="#1d2838" text-anchor="middle">PayPal REST API</text>
+      <text x="430" y="42" font-size="8" fill="#2c4b66" text-anchor="middle">Checkout SDK v2</text>
+      <line x1="430" y1="75" x2="430" y2="52" stroke="#2c4b66" stroke-dasharray="3,3" stroke-width="1.5"/>
+
+      <!-- External Google OAuth Lower Branch -->
+      <rect x="360" y="165" width="140" height="42" rx="6" fill="#fffaf3" stroke="#ffd7b5" stroke-width="1.5"/>
+      <text x="430" y="182" font-size="9" font-weight="700" fill="#1d2838" text-anchor="middle">Google Identity</text>
+      <text x="430" y="197" font-size="8" fill="#2c4b66" text-anchor="middle">OAuth2 Token Verify</text>
+      <line x1="430" y1="145" x2="430" y2="165" stroke="#2c4b66" stroke-dasharray="3,3" stroke-width="1.5"/>
+
+      <!-- Markers -->
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff6b4a"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="diagram-caption">Figura 4.1: Diagrama General de Componentes e Infraestructura de Huellitas Shop</div>
+  </div>
+
+  <h3>4.1. Arquitectura por Capas en el Backend</h3>
+  <ul>
+    <li><strong>Controller (Controladores REST):</strong> Expone los endpoints, maneja el protocolo HTTP y serializa/deserializa los DTOs.</li>
+    <li><strong>Service (Capa de Lógica de Negocio):</strong> Aplica reglas de stock, políticas de sesión, validación de estados y transaccionalidad (`@Transactional`).</li>
+    <li><strong>Repository (Persistencia):</strong> Interfaces Spring Data JPA con métodos derivados y optimizados.</li>
+    <li><strong>Entity (Modelo de Dominio):</strong> Clases anotadas con Jakarta Persistence (JPA) que mapean a las tablas de PostgreSQL.</li>
+    <li><strong>Audit & Security:</strong> Interceptores transversales que validan la sesión única y registran cada mutación en la base de datos de manera inmutable.</li>
+  </ul>
+
+  <!-- ============================================================
+       MÓDULOS DEL SISTEMA (SLIDE 10)
+       ============================================================ -->
+  <div class="page-break"></div>
+  <h2><span class="section-num">5</span> Módulos del Sistema</h2>
+
+  <p>Cada módulo del sistema cuenta con una función específica, contratos de entrada y salida claros, y dependencias bien acotadas:</p>
+
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-title">Módulo 1: Autenticación y Control de Sesión</span>
+      <span class="badge badge-public">Core</span>
+    </div>
+    <p><strong>Función:</strong> Registra clientes, autentica usuarios locales y con Google OAuth2, genera tokens JWT con claim de sesión única, y gestiona el cierre formal y pings de inactividad (`heartbeat`).</p>
+    <p><strong>Entradas:</strong> <code>RegisterRequest</code>, <code>AuthRequest</code>, <code>GoogleAuthRequest</code>.</p>
+    <p><strong>Salidas:</strong> <code>AuthResponse</code> (token JWT firmado, id, nombre, email, rol) o código 204 en logout/heartbeat.</p>
+    <p><strong>Dependencias:</strong> <code>UserRepository</code>, <code>UserSessionRepository</code>, <code>ActiveSessionService</code>, <code>JwtService</code>, <code>BCryptPasswordEncoder</code>.</p>
+  </div>
+
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-title">Módulo 2: Catálogo de Productos e Inventario</span>
+      <span class="badge badge-public">Catálogo</span>
+    </div>
+    <p><strong>Función:</strong> Permite consultar el catálogo público con filtrado y búsqueda por texto, así como el mantenimiento administrativo completo (creación, edición de precios/stock y borrado lógico/físico).</p>
+    <p><strong>Entradas:</strong> Parámetros de consulta (`search`), <code>ProductRequest</code> con validación de precios positivos y stock.</p>
+    <p><strong>Salidas:</strong> Lista de <code>ProductResponse</code>, objeto individual o respuesta de confirmación.</p>
+    <p><strong>Dependencias:</strong> <code>ProductRepository</code>, <code>AuditLogRecorder</code>.</p>
+  </div>
+
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-title">Módulo 3: Gestión de Pedidos y Tickets</span>
+      <span class="badge badge-staff">Transaccional</span>
+    </div>
+    <p><strong>Función:</strong> Procesa el checkout de compras, descuenta inventario, calcula montos totales, genera comprobantes con identificador único <code>HS-XXXXXX</code> y gestiona el ciclo de vida del pedido (`PENDING`, `PAID`, `SHIPPED`, `CANCELLED`).</p>
+    <p><strong>Entradas:</strong> <code>OrderRequest</code> (userId, lista de items con cantidad), <code>OrderStatusUpdateRequest</code>.</p>
+    <p><strong>Salidas:</strong> <code>OrderResponse</code> con detalle de subtotal por ítem, <code>TicketResponse</code>.</p>
+    <p><strong>Dependencias:</strong> <code>PetOrderRepository</code>, <code>OrderItemRepository</code>, <code>ProductRepository</code>, <code>OrderSecurity</code>.</p>
+  </div>
+
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-title">Módulo 4: Pasarela de Pagos (PayPal & Efectivo)</span>
+      <span class="badge badge-staff">Pagos</span>
+    </div>
+    <p><strong>Función:</strong> Orquesta la creación de órdenes en los servidores de PayPal, redirección segura a PayPal Checkout, captura de fondos autorizados y confirmación manual de pagos presenciales en efectivo.</p>
+    <p><strong>Entradas:</strong> <code>orderId</code>, <code>PaymentCaptureRequest</code> (con `paypalOrderId`), <code>PaymentUpdateRequest</code>.</p>
+    <p><strong>Salidas:</strong> <code>PaymentOrderResponse</code> (approveUrl), <code>PaymentCaptureResponse</code>.</p>
+    <p><strong>Dependencias:</strong> <code>PayPalService</code>, <code>PayPalCheckoutSDK</code>, <code>PetOrderRepository</code>.</p>
+  </div>
+
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-title">Módulo 5: Analítica y Reportes Ejecutivos</span>
+      <span class="badge badge-staff">Reportes</span>
+    </div>
+    <p><strong>Función:</strong> Agrega métricas financieras (total facturado, ticket promedio, ventas por categoría y productos más vendidos) y exporta libros tabulares en formato Microsoft Excel y documentos PDF con membrete.</p>
+    <p><strong>Entradas:</strong> <code>ReportFilter</code> (rango de fechas, categoría, estado), <code>ReportFormat</code> (`XLSX`, `PDF`).</p>
+    <p><strong>Salidas:</strong> <code>ReportSummary</code> en JSON, o archivo binario en streaming con cabecera `Content-Disposition`.</p>
+    <p><strong>Dependencias:</strong> <code>ReportService</code>, <code>Apache POI</code> (poi-ooxml), <code>LibrePDF / OpenPDF</code>.</p>
+  </div>
+
+  <div class="module-card">
+    <div class="module-header">
+      <span class="module-title">Módulo 6: Auditoría, Trazabilidad y Backups</span>
+      <span class="badge badge-admin">Seguridad & TI</span>
+    </div>
+    <p><strong>Función:</strong> Registra de manera automática e inalterable cada acción administrativa en la base de datos (`AuditLog`), proporciona consulta paginada de auditoría y permite realizar volcados y restauraciones completas en SQL.</p>
+    <p><strong>Entradas:</strong> Eventos de Hibernate (`post-insert`, `post-update`, `post-delete`), archivo `.sql` multipart para restauración.</p>
+    <p><strong>Salidas:</strong> Registros paginados de auditoría, archivo SQL descargable o estado de restauración.</p>
+    <p><strong>Dependencias:</strong> <code>AuditLogRepository</code>, <code>HibernateAuditListener</code>, <code>BackupService</code>, <code>JdbcTemplate</code>.</p>
+  </div>
+
+  <!-- ============================================================
+       BASE DE DATOS (SLIDE 11)
+       ============================================================ -->
+  <div class="page-break"></div>
+  <h2><span class="section-num">6</span> Base de Datos</h2>
+
+  <h3>6.1. Modelo Entidad-Relación (MER)</h3>
+  
+  <!-- Vector SVG ER Diagram -->
+  <div class="diagram-card">
+    <svg width="100%" height="250" viewBox="0 0 680 250" xmlns="http://www.w3.org/2000/svg" style="font-family:'Segoe UI', sans-serif;">
+      <rect width="680" height="250" rx="10" fill="#fffaf3"/>
+      
+      <!-- USERS Table -->
+      <g transform="translate(20, 20)">
+        <rect width="180" height="95" rx="6" fill="#ffffff" stroke="#2c4b66" stroke-width="1.5"/>
+        <rect width="180" height="24" rx="6" fill="#2c4b66"/>
+        <text x="90" y="16" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">USERS</text>
+        <text x="10" y="40" font-size="8.5" fill="#1d2838">PK: id (bigserial)</text>
+        <text x="10" y="55" font-size="8.5" fill="#1d2838">email (varchar, UK)</text>
+        <text x="10" y="70" font-size="8.5" fill="#1d2838">password (varchar hash)</text>
+        <text x="10" y="85" font-size="8.5" fill="#1d2838">role (varchar)</text>
+      </g>
+
+      <!-- USER_SESSIONS Table -->
+      <g transform="translate(20, 140)">
+        <rect width="180" height="90" rx="6" fill="#ffffff" stroke="#ff6b4a" stroke-width="1.5"/>
+        <rect width="180" height="24" rx="6" fill="#ff6b4a"/>
+        <text x="90" y="16" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">USER_SESSIONS</text>
+        <text x="10" y="40" font-size="8.5" fill="#1d2838">PK: id (bigserial)</text>
+        <text x="10" y="55" font-size="8.5" fill="#1d2838">FK: user_id (UK, bigint)</text>
+        <text x="10" y="70" font-size="8.5" fill="#1d2838">session_id (uuid)</text>
+        <text x="10" y="85" font-size="8.5" fill="#1d2838">last_seen_at (timestamp)</text>
+      </g>
+
+      <!-- Link USERS -> USER_SESSIONS (1:1) -->
+      <line x1="110" y1="115" x2="110" y2="140" stroke="#ff6b4a" stroke-width="2"/>
+      <text x="118" y="130" font-size="8" fill="#d64724">1:1</text>
+
+      <!-- ORDERS Table -->
+      <g transform="translate(250, 20)">
+        <rect width="180" height="110" rx="6" fill="#ffffff" stroke="#2c4b66" stroke-width="1.5"/>
+        <rect width="180" height="24" rx="6" fill="#2c4b66"/>
+        <text x="90" y="16" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">ORDERS</text>
+        <text x="10" y="40" font-size="8.5" fill="#1d2838">PK: id (bigserial)</text>
+        <text x="10" y="55" font-size="8.5" fill="#1d2838">FK: user_id (bigint)</text>
+        <text x="10" y="70" font-size="8.5" fill="#1d2838">status (varchar)</text>
+        <text x="10" y="85" font-size="8.5" fill="#1d2838">ticket_number (varchar, UK)</text>
+        <text x="10" y="100" font-size="8.5" fill="#1d2838">total_amount (numeric)</text>
+      </g>
+
+      <!-- Link USERS -> ORDERS (1:N) -->
+      <line x1="200" y1="60" x2="250" y2="60" stroke="#2c4b66" stroke-width="2"/>
+      <text x="225" y="54" font-size="8" fill="#2c4b66" text-anchor="middle">1:N</text>
+
+      <!-- ORDER_ITEMS Table -->
+      <g transform="translate(480, 20)">
+        <rect width="180" height="100" rx="6" fill="#ffffff" stroke="#18b5a4" stroke-width="1.5"/>
+        <rect width="180" height="24" rx="6" fill="#18b5a4"/>
+        <text x="90" y="16" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">ORDER_ITEMS</text>
+        <text x="10" y="40" font-size="8.5" fill="#1d2838">PK: id (bigserial)</text>
+        <text x="10" y="55" font-size="8.5" fill="#1d2838">FK: order_id (bigint)</text>
+        <text x="10" y="70" font-size="8.5" fill="#1d2838">FK: product_id (bigint)</text>
+        <text x="10" y="85" font-size="8.5" fill="#1d2838">quantity (integer)</text>
+      </g>
+
+      <!-- Link ORDERS -> ORDER_ITEMS (1:N) -->
+      <line x1="430" y1="60" x2="480" y2="60" stroke="#18b5a4" stroke-width="2"/>
+      <text x="455" y="54" font-size="8" fill="#0d8275" text-anchor="middle">1:N</text>
+
+      <!-- PRODUCTS Table -->
+      <g transform="translate(480, 140)">
+        <rect width="180" height="95" rx="6" fill="#ffffff" stroke="#2c4b66" stroke-width="1.5"/>
+        <rect width="180" height="24" rx="6" fill="#2c4b66"/>
+        <text x="90" y="16" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">PRODUCTS</text>
+        <text x="10" y="40" font-size="8.5" fill="#1d2838">PK: id (bigserial)</text>
+        <text x="10" y="55" font-size="8.5" fill="#1d2838">name (varchar)</text>
+        <text x="10" y="70" font-size="8.5" fill="#1d2838">price (numeric)</text>
+        <text x="10" y="85" font-size="8.5" fill="#1d2838">stock (integer)</text>
+      </g>
+
+      <!-- Link PRODUCTS -> ORDER_ITEMS (1:N) -->
+      <line x1="570" y1="140" x2="570" y2="120" stroke="#18b5a4" stroke-width="2"/>
+      <text x="578" y="132" font-size="8" fill="#0d8275">1:N</text>
+
+      <!-- LOGS Table -->
+      <g transform="translate(250, 150)">
+        <rect width="180" height="80" rx="6" fill="#ffffff" stroke="#2c4b66" stroke-width="1.5"/>
+        <rect width="180" height="24" rx="6" fill="#2c4b66"/>
+        <text x="90" y="16" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">LOGS (AUDIT)</text>
+        <text x="10" y="40" font-size="8.5" fill="#1d2838">PK: id (bigserial)</text>
+        <text x="10" y="55" font-size="8.5" fill="#1d2838">action / entity_name</text>
+        <text x="10" y="70" font-size="8.5" fill="#1d2838">actor (email / SYSTEM)</text>
+      </g>
+    </svg>
+    <div class="diagram-caption">Figura 6.1: Diagrama Entidad-Relación de Huellitas Shop en PostgreSQL</div>
+  </div>
+
+  <h3>6.2. Diccionario de Datos Completo</h3>
+
+  <h4>Tabla: <code>users</code></h4>
+  <table>
+    <thead>
+      <tr><th>Campo</th><th>Tipo de Dato</th><th>Restricciones</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>BIGSERIAL</td><td>PK, NOT NULL</td><td>Identificador único y secuencial del usuario.</td></tr>
+      <tr><td><code>full_name</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Nombre y apellidos del usuario.</td></tr>
+      <tr><td><code>email</code></td><td>VARCHAR(255)</td><td>UNIQUE, NOT NULL</td><td>Correo electrónico institucional o personal para autenticación.</td></tr>
+      <tr><td><code>password</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Hash criptográfico de la contraseña protegido con BCrypt.</td></tr>
+      <tr><td><code>role</code></td><td>VARCHAR(20)</td><td>NOT NULL</td><td>Rol de seguridad: `ADMIN`, `EMPLOYEE`, `CUSTOMER`.</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOT NULL</td><td>Fecha y hora de registro oficial en zona `America/Bogota`.</td></tr>
+      <tr><td><code>updated_at</code></td><td>TIMESTAMP</td><td>NULLABLE</td><td>Fecha y hora de la última modificación del perfil.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Tabla: <code>products</code></h4>
+  <table>
+    <thead>
+      <tr><th>Campo</th><th>Tipo de Dato</th><th>Restricciones</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>BIGSERIAL</td><td>PK, NOT NULL</td><td>Identificador único del producto en inventario.</td></tr>
+      <tr><td><code>name</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Nombre comercial del producto.</td></tr>
+      <tr><td><code>description</code></td><td>VARCHAR(2000)</td><td>NULLABLE</td><td>Descripción detallada, beneficios y composición.</td></tr>
+      <tr><td><code>price</code></td><td>NUMERIC(10,2)</td><td>NOT NULL</td><td>Precio unitario de venta en Pesos Colombianos (COP).</td></tr>
+      <tr><td><code>stock</code></td><td>INTEGER</td><td>NOT NULL</td><td>Cantidad de unidades físicas disponibles en bodega.</td></tr>
+      <tr><td><code>category</code></td><td>VARCHAR(100)</td><td>NULLABLE</td><td>Clasificación del producto (Perros, Gatos, Higiene, Accesorios).</td></tr>
+      <tr><td><code>image_url</code></td><td>VARCHAR(255)</td><td>NULLABLE</td><td>URL con la imagen ilustrativa del producto.</td></tr>
+      <tr><td><code>active</code></td><td>BOOLEAN</td><td>NOT NULL (def: true)</td><td>Indicador de visibilidad en el catálogo público de la tienda.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Tabla: <code>orders</code></h4>
+  <table>
+    <thead>
+      <tr><th>Campo</th><th>Tipo de Dato</th><th>Restricciones</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>BIGSERIAL</td><td>PK, NOT NULL</td><td>Identificador numérico correlativo de la orden.</td></tr>
+      <tr><td><code>user_id</code></td><td>BIGINT</td><td>FK -> users(id), NOT NULL</td><td>Cliente que realizó la compra.</td></tr>
+      <tr><td><code>status</code></td><td>VARCHAR(30)</td><td>NOT NULL</td><td>Estado actual: `PENDING`, `PAID`, `SHIPPED`, `CANCELLED`.</td></tr>
+      <tr><td><code>payment_method</code></td><td>VARCHAR(30)</td><td>NULLABLE</td><td>Método de liquidación: `PAYPAL` o `CASH`.</td></tr>
+      <tr><td><code>ticket_number</code></td><td>VARCHAR(20)</td><td>UNIQUE, NULLABLE</td><td>Código de ticket oficial impreso (ejemplo: `HS-000105`).</td></tr>
+      <tr><td><code>total_amount</code></td><td>NUMERIC(10,2)</td><td>NOT NULL (def: 0)</td><td>Monto consolidado total de la orden en COP.</td></tr>
+      <tr><td><code>paypal_order_id</code></td><td>VARCHAR(255)</td><td>UNIQUE, NULLABLE</td><td>Identificador de transacción registrado en el API de PayPal.</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOT NULL</td><td>Estampa de tiempo del momento exacto de la orden.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Tabla: <code>order_items</code></h4>
+  <table>
+    <thead>
+      <tr><th>Campo</th><th>Tipo de Dato</th><th>Restricciones</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>BIGSERIAL</td><td>PK, NOT NULL</td><td>Identificador único del ítem del pedido.</td></tr>
+      <tr><td><code>order_id</code></td><td>BIGINT</td><td>FK -> orders(id), NOT NULL</td><td>Pedido al que pertenece esta línea.</td></tr>
+      <tr><td><code>product_id</code></td><td>BIGINT</td><td>FK -> products(id), NOT NULL</td><td>Producto físico comprado.</td></tr>
+      <tr><td><code>quantity</code></td><td>INTEGER</td><td>NOT NULL</td><td>Número de unidades adquiridas.</td></tr>
+      <tr><td><code>unit_price</code></td><td>NUMERIC(10,2)</td><td>NOT NULL</td><td>Precio unitario congelado al instante de la venta.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Tabla: <code>user_sessions</code></h4>
+  <table>
+    <thead>
+      <tr><th>Campo</th><th>Tipo de Dato</th><th>Restricciones</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>BIGSERIAL</td><td>PK, NOT NULL</td><td>Identificador del registro de sesión.</td></tr>
+      <tr><td><code>user_id</code></td><td>BIGINT</td><td>FK -> users(id), UNIQUE</td><td>Usuario dueño de la sesión activa simultánea.</td></tr>
+      <tr><td><code>session_id</code></td><td>VARCHAR(36)</td><td>NOT NULL</td><td>UUID único de sesión inyectado en el claim del JWT.</td></tr>
+      <tr><td><code>last_seen_at</code></td><td>TIMESTAMP</td><td>NOT NULL</td><td>Marca de tiempo de la última petición o latido de heartbeat.</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Tabla: <code>logs</code> (Auditoría Inmutable)</h4>
+  <table>
+    <thead>
+      <tr><th>Campo</th><th>Tipo de Dato</th><th>Restricciones</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>BIGSERIAL</td><td>PK, NOT NULL</td><td>Identificador secuencial del evento.</td></tr>
+      <tr><td><code>action</code></td><td>VARCHAR(30)</td><td>NOT NULL</td><td>Acción ejecutada: `INSERT`, `UPDATE`, `DELETE`, `LOGIN`.</td></tr>
+      <tr><td><code>entity_name</code></td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Nombre de la clase o entidad afectada (`Product`, `User`, etc.).</td></tr>
+      <tr><td><code>entity_id</code></td><td>VARCHAR(100)</td><td>NULLABLE</td><td>Identificador de la fila modificada.</td></tr>
+      <tr><td><code>actor</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Email del usuario autenticado que ejecutó la acción o `SYSTEM`.</td></tr>
+      <tr><td><code>details</code></td><td>TEXT</td><td>NULLABLE</td><td>Detalle textual con los atributos anteriores y nuevos.</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>NOT NULL</td><td>Fecha y hora del suceso auditado.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================
+       ESTRUCTURA DEL CÓDIGO (SLIDES 12 & 13)
+       ============================================================ -->
+  <div class="page-break"></div>
+  <h2><span class="section-num">7</span> Estructura del Código</h2>
+
+  <h3>7.1. Distribución del Backend (`/backend/src/main/java/com/petshop`)</h3>
+  <pre>
+backend/src/main/java/com/petshop/
+├── audit/                  # Listeners de Hibernate y registradores de eventos inmutables
+├── config/                 # SecurityConfig, PayPalConfig, DataSeeder y SessionPolicy
+├── dto/                    # Contratos de transferencia (Requests, Responses y PageResponse)
+│   ├── auth/ &bull; backup/ &bull; log/ &bull; order/ &bull; payment/ &bull; product/ &bull; report/ &bull; user/
+│   └── controller/         # REST Controllers expuestos por Spring MVC
+├── entity/                 # Entidades JPA (User, Product, PetOrder, OrderItem, UserSession, AuditLog)
+├── event/                  # Eventos y escuchadores asíncronos internos (OrderPaidEvent)
+├── exception/              # GlobalExceptionHandler y excepciones tipadas (BadRequest, Forbidden)
+├── repository/             # Interfaces Spring Data JPA para PostgreSQL
+├── security/               # Filtro JwtAuthenticationFilter, JwtService y reglas OrderSecurity
+├── service/                # Servicios de negocio transaccionales (@Transactional)
+│   └── report/             # ReportService y exportadores especializados Excel/PDF
+└── validation/             # Validadores de política de contraseñas robustas (StrongPassword)
+  </pre>
+
+  <h3>7.2. Distribución del Frontend (`/frontend/src`)</h3>
+  <pre>
+frontend/src/
+├── components/             # Componentes modulares reutilizables
+│   ├── layout/             # Navbar principal y Footer con branding
+│   ├── InactivityGuard.jsx # Escucha de eventos de inactividad con modal de advertencia
+│   ├── ProductCard.jsx     # Renderizado de tarjeta de catálogo con botón de carrito
+│   ├── ProtectedRoute.jsx  # Guardia de rutas por rol (requireAdmin, requireStaff)
+│   └── TicketModal.jsx     # Renderizado e impresión de comprobantes de venta
+├── config/                 # Parámetros de inactividad y constantes de aplicación
+├── context/                # Estados compartidos de React (Auth, Cart, Theme, Language)
+├── hooks/                  # Custom Hooks (useIdleTimer, useSessionHeartbeat)
+├── i18n/                   # Diccionarios de internacionalización (es.json y en.json)
+├── pages/                  # Vistas principales (Home, Login, Register, Cart, Admin, Reports)
+├── services/               # Clientes Axios con inyección automática de Bearer Token
+└── utils/                  # Formateadores de moneda colombiana (COP) y helpers de blob
+  </pre>
+
+  <!-- ============================================================
+       APIS E INTEGRACIONES (SLIDE 14)
+       ============================================================ -->
+  <h2><span class="section-num">8</span> APIs e Integraciones</h2>
+
+  <h3>8.1. Matriz de Endpoints REST</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Método</th>
+        <th>Ruta / Endpoint</th>
+        <th>Permisos Requeridos</th>
+        <th>Códigos HTTP</th>
+        <th>Descripción del Endpoint</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/auth/register</code></td>
+        <td><span class="badge badge-public">Público</span></td>
+        <td>201, 400</td>
+        <td>Registro de cliente nuevo con validación de contraseña.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/auth/login</code></td>
+        <td><span class="badge badge-public">Público</span></td>
+        <td>200, 400</td>
+        <td>Autenticación y retorno de JWT con claim de sesión.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/auth/logout</code></td>
+        <td><span class="badge badge-staff">Autenticado</span></td>
+        <td>204, 401</td>
+        <td>Cierre de sesión y revocación del identificador activo.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/auth/heartbeat</code></td>
+        <td><span class="badge badge-staff">Autenticado</span></td>
+        <td>204, 401</td>
+        <td>Latido de actividad para evitar timeout de inactividad.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/products</code></td>
+        <td><span class="badge badge-public">Público</span></td>
+        <td>200</td>
+        <td>Listado de catálogo público con filtro de búsqueda.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/products/admin/all</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>200, 403</td>
+        <td>Listado de inventario total (activos e inactivos).</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/products</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>201, 400, 403</td>
+        <td>Alta de nuevo producto en catálogo.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-put">PUT</span></td>
+        <td><code>/api/products/{id}</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>200, 400, 404</td>
+        <td>Modificación de precios, stock, categoría o datos.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-delete">DELETE</span></td>
+        <td><code>/api/products/{id}</code></td>
+        <td><span class="badge badge-admin">Admin</span></td>
+        <td>204, 404</td>
+        <td>Eliminación permanente de producto.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/orders</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>200, 403</td>
+        <td>Consulta paginada de todos los pedidos radicados.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/orders/user/{userId}</code></td>
+        <td><span class="badge badge-staff">Propietario / Staff</span></td>
+        <td>200, 403</td>
+        <td>Historial de compras del cliente actual.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/orders/{id}/ticket</code></td>
+        <td><span class="badge badge-staff">Propietario / Staff</span></td>
+        <td>200, 404</td>
+        <td>Comprobante de venta digital con número oficial.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/orders</code></td>
+        <td><span class="badge badge-staff">Propietario / Staff</span></td>
+        <td>201, 400</td>
+        <td>Radicación de pedido y reserva atómica de existencias.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-patch">PATCH</span></td>
+        <td><code>/api/orders/{id}/status</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>200, 400</td>
+        <td>Cambio de estado del pedido (`PAID`, `SHIPPED`, etc.).</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/payment/paypal/create-order</code></td>
+        <td><span class="badge badge-staff">Propietario / Admin</span></td>
+        <td>200, 400</td>
+        <td>Generación de orden en PayPal Checkout API v2.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/payment/paypal/capture</code></td>
+        <td><span class="badge badge-staff">Propietario / Admin</span></td>
+        <td>200, 400</td>
+        <td>Captura y liquidación de fondos autorizados por PayPal.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/reports/summary</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>200, 403</td>
+        <td>Resumen analítico con métricas e indicadores clave.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/reports/export</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>200, 403</td>
+        <td>Descarga directa de reporte en formato `.xlsx` o `.pdf`.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/logs</code></td>
+        <td><span class="badge badge-staff">Staff</span></td>
+        <td>200, 403</td>
+        <td>Consulta paginada del registro inmutable de auditoría.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-get">GET</span></td>
+        <td><code>/api/backup/download</code></td>
+        <td><span class="badge badge-staff">Autenticado</span></td>
+        <td>200, 401</td>
+        <td>Descarga del volcado SQL completo de la base de datos.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-post">POST</span></td>
+        <td><code>/api/backup/restore</code></td>
+        <td><span class="badge badge-staff">Autenticado</span></td>
+        <td>200, 500</td>
+        <td>Restauración supervisada de la base de datos desde `.sql`.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================
+       SEGURIDAD (SLIDE 15)
+       ============================================================ -->
+  <div class="page-break"></div>
+  <h2><span class="section-num">9</span> Seguridad</h2>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Arquitectura de Seguridad en Profundidad</div>
+    El sistema implementa mecanismos de defensa en múltiples capas, asegurando la confidencialidad, integridad y disponibilidad de la información conforme a las mejores prácticas de OWASP.
+  </div>
+
+  <ul>
+    <li><strong>Autenticación y Criptografía:</strong> Cifrado de contraseñas mediante <code>BCryptPasswordEncoder</code> con salt dinámico por usuario. Generación de tokens JWT firmados con clave simétrica secreta (HMAC-SHA256) de longitud segura.</li>
+    <li><strong>Control de Acceso por Roles (RBAC):</strong> Protección declarativa de métodos mediante <code>@PreAuthorize</code> con los roles <code>ROLE_ADMIN</code>, <code>ROLE_EMPLOYEE</code> y <code>ROLE_CUSTOMER</code>. Reglas de propiedad SpEL (<code>@orderSecurity.ownsOrder(#id, authentication)</code>) para evitar acceso horizontal no autorizado entre clientes.</li>
+    <li><strong>Protección contra Inyección SQL (SQLi):</strong> Consultas 100% parametrizadas a través de Hibernate ORM y Spring Data JPA, impidiendo la concatenación dinámica de sentencias SQL maliciosas.</li>
+    <li><strong>Mitigación de Cross-Site Scripting (XSS):</strong> El Virtual DOM de React escapa y neutraliza contextualmente todas las cadenas de texto renderizadas antes de insertarlas en el árbol DOM del navegador.</li>
+    <li><strong>Mitigación de CSRF:</strong> Arquitectura REST Stateless con cabecera obligatoria <code>Authorization: Bearer &lt;token&gt;</code> sin uso de cookies vulnerables a cross-origin.</li>
+    <li><strong>Control de Concurrencia e Inactividad:</strong> Servicio <code>ActiveSessionService</code> que fuerza la sesión única por cuenta de usuario y cierra la sesión tras 2 minutos de inactividad asistido por un <code>InactivityGuard</code> en el frontend.</li>
+    <li><strong>Auditoría Inmutable:</strong> La entidad <code>AuditLog</code> no cuenta con métodos setters ni endpoints de modificación/borrado, garantizando un registro fidedigno de auditoría.</li>
+  </ul>
+
+  <!-- ============================================================
+       IMPLEMENTACIÓN, INSTALACIÓN Y CONFIGURACIÓN (SLIDES 16 & 17)
+       ============================================================ -->
+  <h2><span class="section-num">10</span> Instalación y Configuración</h2>
+
+  <h3>10.1. Despliegue con Docker Compose (Recomendado)</h3>
+
+  <p><strong>Paso 1: Clonar el proyecto</strong></p>
+  <pre>git clone https://github.com/usuario/api2.git
+cd api2</pre>
+
+  <p><strong>Paso 2: Configurar las Variables de Entorno (`.env`)</strong></p>
+  <pre>
+# Base de Datos PostgreSQL
+POSTGRES_DB=petshop_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=TuClaveSegura123!
+POSTGRES_PORT=5433
+
+# Puertos y Red
+BACKEND_PORT=8081
+FRONTEND_PORT=5173
+
+# Seguridad JWT y Admin
+JWT_SECRET=dGVzdF9zZWNyZXRfa2V5X3Rlc3Rfc2VjcmV0X2tleV90ZXN0X3NlY3JldF9rZXk=
+JWT_EXPIRATION_MS=86400000
+ADMIN_INITIAL_PASSWORD=Admin12345!
+
+# Pasarela PayPal y Google OAuth
+PAYPAL_CLIENT_ID=sb-dummy-id
+PAYPAL_CLIENT_SECRET=sb-dummy-secret
+PAYPAL_MODE=sandbox
+GOOGLE_CLIENT_ID=dummy-client-id.apps.googleusercontent.com
+  </pre>
+
+  <p><strong>Paso 3: Construir y Levantar los Contenedores</strong></p>
+  <pre>docker compose up --build -d</pre>
+
+  <p><strong>Paso 4: Validar Estado de Salud y Puertos</strong></p>
+  <pre>docker compose ps</pre>
+
+  <table>
+    <thead><tr><th>Servicio</th><th>Contenedor</th><th>Puerto Host</th><th>Puerto Interno</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Frontend + Proxy</strong></td><td>petshop-frontend</td><td>5173</td><td>80</td><td>Up</td></tr>
+      <tr><td><strong>Backend API</strong></td><td>petshop-backend</td><td>8081</td><td>8080</td><td>Up</td></tr>
+      <tr><td><strong>PostgreSQL</strong></td><td>petshop-db</td><td>5433</td><td>5432</td><td>Up (healthy)</td></tr>
+      <tr><td><strong>Adminer</strong></td><td>petshop-adminer</td><td>8082</td><td>8080</td><td>Up</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================
+       DESPLIEGUE Y CI/CD (SLIDE 18)
+       ============================================================ -->
+  <div class="page-break"></div>
+  <h2><span class="section-num">11</span> Despliegue y CI/CD</h2>
+
+  <h3>11.1. Ambientes de la Solución</h3>
+  <ul>
+    <li><strong>Desarrollo (Local):</strong> Ejecución con live-reload en Vite (`npm run dev`) y Spring Boot Devtools con base de datos en Docker.</li>
+    <li><strong>Pruebas e Integración Continua (CI):</strong> Pipeline automatizado en GitHub Actions con servicios efímeros de PostgreSQL, validando la compilación, pruebas y análisis estático.</li>
+    <li><strong>Producción:</strong> Despliegue en contenedores optimizados con Nginx como proxy inverso, compresión gzip y volúmenes de datos persistentes.</li>
+  </ul>
+
+  <h3>11.2. Pipeline Automatizado de Integración Continua (`.github/workflows/ci.yml`)</h3>
+  
+  <!-- Vector SVG CI/CD Diagram -->
+  <div class="diagram-card">
+    <svg width="100%" height="160" viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg" style="font-family:'Segoe UI', sans-serif;">
+      <rect width="680" height="160" rx="10" fill="#fffaf3"/>
+      
+      <!-- Event Node -->
+      <rect x="20" y="50" width="130" height="60" rx="8" fill="#ffffff" stroke="#ff6b4a" stroke-width="2"/>
+      <text x="85" y="76" font-size="10.5" font-weight="700" fill="#1d2838" text-anchor="middle">GitHub Event</text>
+      <text x="85" y="93" font-size="8.5" fill="#ff6b4a" text-anchor="middle">Push / Pull Request</text>
+
+      <line x1="150" y1="80" x2="190" y2="80" stroke="#ff6b4a" stroke-width="2"/>
+
+      <!-- 3 Parallel Jobs -->
+      <!-- Job 1 Backend -->
+      <rect x="190" y="15" width="220" height="38" rx="6" fill="#ffffff" stroke="#2c4b66" stroke-width="1.5"/>
+      <text x="200" y="32" font-size="9" font-weight="700" fill="#2c4b66">Backend Job:</text>
+      <text x="270" y="32" font-size="8.5" fill="#1d2838">Java 25 + Postgres + mvn verify</text>
+
+      <!-- Job 2 Frontend -->
+      <rect x="190" y="61" width="220" height="38" rx="6" fill="#ffffff" stroke="#18b5a4" stroke-width="1.5"/>
+      <text x="200" y="78" font-size="9" font-weight="700" fill="#18b5a4">Frontend Job:</text>
+      <text x="270" y="78" font-size="8.5" fill="#1d2838">Node 20 + npm audit + build</text>
+
+      <!-- Job 3 Security -->
+      <rect x="190" y="107" width="220" height="38" rx="6" fill="#ffffff" stroke="#ff6b4a" stroke-width="1.5"/>
+      <text x="200" y="124" font-size="9" font-weight="700" fill="#ff6b4a">Security Job:</text>
+      <text x="270" y="124" font-size="8.5" fill="#1d2838">CodeQL Static Analysis (SAST)</text>
+
+      <!-- Lines to outcome -->
+      <line x1="410" y1="34" x2="480" y2="80" stroke="#2c4b66" stroke-width="1.5"/>
+      <line x1="410" y1="80" x2="480" y2="80" stroke="#18b5a4" stroke-width="1.5"/>
+      <line x1="410" y1="126" x2="480" y2="80" stroke="#ff6b4a" stroke-width="1.5"/>
+
+      <!-- Outcome Node -->
+      <rect x="480" y="50" width="170" height="60" rx="8" fill="#ffffff" stroke="#18b5a4" stroke-width="2"/>
+      <text x="565" y="76" font-size="10.5" font-weight="700" fill="#18b5a4" text-anchor="middle">Aprobado / Release</text>
+      <text x="565" y="93" font-size="8.5" fill="#2c4b66" text-anchor="middle">Artefactos de Producción</text>
+    </svg>
+    <div class="diagram-caption">Figura 11.1: Flujo de Integración Continua en GitHub Actions</div>
+  </div>
+
+  <!-- ============================================================
+       MANTENIMIENTO DEL SISTEMA (SLIDE 19)
+       ============================================================ -->
+  <h2><span class="section-num">12</span> Mantenimiento del Sistema</h2>
+
+  <h3>12.1. Gestión y Monitoreo de Logs</h3>
+  <p>Monitoreo de eventos en tiempo real mediante comandos nativos de Docker:</p>
+  <pre>docker compose logs -f --tail=100 backend
+docker compose logs -f db</pre>
+
+  <h3>12.2. Política de Respaldo y Recuperación (Disaster Recovery)</h3>
+  <ul>
+    <li><strong>Frecuencia:</strong> Respaldos diarios en horario de bajo tráfico (02:00 AM America/Bogota).</li>
+    <li><strong>Comando de Volcado Manual en Caliente:</strong>
+      <pre>docker exec -t petshop-db pg_dump -U postgres -d petshop_db -F c -b -v -f /var/lib/postgresql/data/backup_$(date +%Y%m%d).dump</pre>
+    </li>
+    <li><strong>Procedimiento de Restauración:</strong> Cargar el volcado a través del endpoint administrativo <code>POST /api/backup/restore</code> o mediante el cliente oficial <code>pg_restore</code>.</li>
+  </ul>
+
+  <h3>12.3. Escalabilidad Horizontal y Vertical</h3>
+  <p>
+    Gracias al diseño <strong>Stateless</strong> de la API (la autenticación se valida en cada petición mediante el token JWT y el registro de sesión en base de datos), el servicio backend puede escalar horizontalmente en múltiples instancias detrás de un balanceador de carga Nginx o Cloud Load Balancer sin pérdida de estado.
+  </p>
+
+  <!-- ============================================================
+       RECOMENDACIONES (SLIDE 20)
+       ============================================================ -->
+  <h2><span class="section-num">13</span> Recomendaciones y Conclusiones</h2>
+
+  <div class="callout callout-info">
+    <div class="callout-title">Buenas Prácticas para el Equipo de Ingeniería</div>
+    <ol>
+      <li><strong>Documentación Continua:</strong> Mantener actualizados tanto este manual técnico como los esquemas Swagger OpenAPI ante cualquier modificación de la API o la base de datos.</li>
+      <li><strong>Seguridad de Credenciales:</strong> Nunca versionar contraseñas, tokens de PayPal o secretos JWT en Git; utilizar siempre archivos <code>.env</code> ignorados o gestores de secretos.</li>
+      <li><strong>Consistencia Horaria:</strong> Asegurar que todo nuevo desarrollo preserve la zona horaria <code>America/Bogota</code> para evitar discrepancias en el cálculo de reportes de ventas.</li>
+      <li><strong>Pruebas Automatizadas:</strong> Ejecutar <code>mvn test</code> y <code>npm run build</code> antes de fusionar cualquier cambio a la rama <code>main</code>.</li>
+    </ol>
+  </div>
+
+  <div style="text-align: center; margin-top: 25pt; padding-top: 15pt; border-top: 1.5pt solid var(--sand); color: var(--dusk); font-size: 8.5pt;">
+    <strong>Huellitas Shop &bull; Plataforma E-commerce Full Stack</strong><br>
+    Manual Técnico de Software &bull; Elaborado conforme a los estándares de desarrollo de la organización.
+  </div>
+
+</div>
+
+</body>
+</html>
